@@ -1,6 +1,6 @@
 # TTGT API
 
-# Настройка
+### Настройка
 
 ```
 python -m venv .venv
@@ -10,11 +10,11 @@ pip install -r requirements.txt
 fastapi run main.py
 ```
 
-# Запуск для разработки
+### Запуск для разработки
 
 Чтобы сервер перезапускался при изменениях
 `fastapi dev main.py`
 
-# Инструменты сис. админа
+### Инструменты сис. админа
 
 `python manager.py`
