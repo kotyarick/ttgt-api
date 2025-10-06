@@ -1,0 +1,4 @@
+sqlalchemy
+fastapi
+fastapi[standard]
+argon2-cffi
