@@ -1,15 +1,17 @@
+import os
+from utils import regenerate_secret
+
+if not os.path.isfile("secret"):
+    regenerate_secret()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.admin import adminRouter
 from routes.auth import authRouter
 from routes.content import contentRoutes
-import os
 
-from utils import regenerate_secret
 
-if not os.path.isfile("secret"):
-    regenerate_secret()
 
 app = FastAPI()
 
