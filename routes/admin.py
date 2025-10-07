@@ -44,7 +44,11 @@ async def create_news(
             session.add(new)
         except IntegrityError:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
-        return PrivateNews.from_orm(new)
+        return PrivateNews.from_orm(
+            session.scalar(
+                select(DatabaseNews).where(DatabaseNews.slug == news.slug)
+            )
+        )
 
 @adminRouter.patch("/news/{post_id:int}")
 async def edit_news(
