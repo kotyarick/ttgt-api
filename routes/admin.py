@@ -57,7 +57,7 @@ async def edit_news(
         post_id: int
 ):
     with Session.begin() as session:
-        session.query(DatabaseNews.id == post_id).update(news.model_dump())
+        session.query(DatabaseNews).filter(DatabaseNews.id == post_id).update(news.model_dump())
         return session.scalar(
             select(DatabaseNews).where(DatabaseNews.id == post_id)
         )
