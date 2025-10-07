@@ -18,12 +18,13 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*://*.ttgt.org/*",
-        "*://ttgt.org/*",
-        "*://ttgt.org",
-        "*://*.ttgt.org",
-        "http://localhost:*",
-        "http://127.0.0.1:*",
+        # "*://*.ttgt.org/*",
+        # "*://ttgt.org/*",
+        # "*://ttgt.org",
+        # "*://*.ttgt.org",
+        # "http://localhost:*",
+        # "http://127.0.0.1:*",
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
