@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Annotated
 
+from certifi import where
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from fastapi import status
 
@@ -57,7 +58,7 @@ async def edit_news(
         post_id: int
 ):
     with Session.begin() as session:
-        session.query(DatabaseNews).filter(DatabaseNews.id == post_id).update(news.model_dump())
+        update(DatabaseNews).where(DatabaseNews.id == post_id).values(**news.model_dump())
         return session.scalar(
             select(DatabaseNews).where(DatabaseNews.id == post_id)
         )
