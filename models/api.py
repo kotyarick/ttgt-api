@@ -1,10 +1,10 @@
-from typing import Optional, Any, Self
+from typing import Optional, Any, Self, Type
 
 import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.database import DatabaseNews, DatabaseAdmin, PostType, PostStatus
+from models.database import DatabaseNews, DatabaseAdmin, NewsType, NewsStatus
 from utils import smart_crop
 
 
@@ -34,16 +34,17 @@ class IncompleteNews(BaseModel):
     Timestamp создания
     """
 
-    post_type: int
+    type: int
 
-    def from_orm(obj: DatabaseNews) -> Self:
+    @classmethod
+    def from_database(cls: Type[T], data: DatabaseNews) -> T:
         return IncompleteNews(
-            id = obj.id,
-            slug = obj.slug,
-            title = obj.title,
-            text = smart_crop(obj.body, 100),
-            publish_date= round(float(obj.publish_date.timestamp())),
-            post_type=obj.post_type
+            id = data.id,
+            slug = data.slug,
+            title = data.title,
+            text = smart_crop(data.body, 100),
+            publish_date= round(float(data.publish_date.timestamp())),
+            type=data.type
         )
 
 
@@ -80,51 +81,46 @@ class PublicNews(BaseModel):
     Timestamp создания
     """
 
-    post_type: int
+    type: int
     author: str
 
-    def from_orm(obj: DatabaseNews) -> Self:
+    @classmethod
+    def from_orm(cls: Type[T], data: DatabaseNews) -> T:
         return PublicNews(
-            id = obj.id,
-            image_amount = obj.image_amount,
-            slug = obj.slug,
-            title = obj.title,
-            text = obj.body,
-            publish_date= obj.publish_date.timestamp(),
-            post_type=int(obj.post_type),
-            author=obj.author
+            id = cls.id,
+            image_amount = cls.image_amount,
+            slug = cls.slug,
+            title = cls.title,
+            text = cls.body,
+            publish_date= cls.publish_date.timestamp(),
+            type=int(cls.type),
+            author=cls.author
         )
 
 class PostableNews(BaseModel):
-    """ Новость, которую можно запостить """
+    """ Новость, которую можно опубликовать """
 
     slug: str
     title: str = ""
     body: str = ""
     publish_date: int
     author: str = ""
-    post_type: PostType = PostType.News
-    post_status: PostStatus = PostStatus.Draft
+    type: NewsType = NewsType.News
+    status: NewsStatus = NewsStatus.Draft
 
-    def validate(self):
+    def check(self):
         try:
-            assert type(self.slug) == str
-            assert type(self.title) == str
-            assert type(self.body) == str
-            assert type(self.publish_date) == int
-            assert type(self.author) == str
-            assert type(self.post_type) == PostType
-            assert type(self.post_status) == PostStatus
-
-            assert 0 < len(self.slug) <= 15
-            assert self.title != ""
-            assert self.body != ""
-            assert self.author != ""
-            assert 0 <= self.post_type.value <= 3
-            assert 0 <= self.post_status.value <= 1
+            assert 0 < len(self.slug) <= 15, "slug должен быть не пустым и не длиннее 15 символов"
+            assert self.title != "", "Поле slug обязательно"
+            assert self.body != "", "Поле title обязательно"
+            assert self.author != "", "Поле body обязательно"
+            assert 0 <= self.type.value <= 3, "Тип поста должен быть в диапазоне 0-3"
+            assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
         except AssertionError as error:
-            print(error)
-            raise HTTPException(status_code=fastapi.status.HTTP_400_BAD_REQUEST)
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail=str(error)
+            )
 
 class PrivateNews(BaseModel):
     """ Новость + приватные данные """
@@ -135,20 +131,21 @@ class PrivateNews(BaseModel):
     publish_date: int
     image_amount: int
     author: str
-    post_type: PostType
-    post_status: PostStatus
+    type: NewsType
+    status: NewsStatus
 
-    def from_orm(obj: DatabaseNews) -> Self:
+    @classmethod
+    def from_orm(cls: Type[T], data: DatabaseNews) -> T:
         return PrivateNews(
-            id = obj.id,
-            slug = obj.slug,
-            title = obj.title,
-            body = obj.body,
-            publish_date = round(float(obj.publish_date.timestamp())),
-            image_amount = obj.image_amount,
-            author = obj.author,
-            post_type = obj.post_type,
-            post_status = obj.post_status
+            id = data.id,
+            slug = data.slug,
+            title = data.title,
+            body = data.body,
+            publish_date = round(float(data.publish_date.timestamp())),
+            image_amount = data.image_amount,
+            author = data.author,
+            type = data.type,
+            status = data.status
         )
 
 class Admin(BaseModel):
@@ -167,12 +164,13 @@ class Admin(BaseModel):
     middle_name: str
     """ Отчество """
 
-    def from_orm(obj: DatabaseAdmin) -> Self:
+    @classmethod
+    def from_orm(cls: Type[T], data: DatabaseAdmin) -> T:
         return Admin(
-            id=obj.id,
-            first_name=obj.first_name,
-            second_name=obj.second_name,
-            middle_name=obj.middle_name
+            id=data.id,
+            first_name=data.first_name,
+            second_name=data.second_name,
+            middle_name=data.middle_name
         )
 
 

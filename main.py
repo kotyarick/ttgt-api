@@ -18,6 +18,11 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        #FIXME: Перед отправкой на прод необходимо
+        # раскомментировать эти ссылки,
+        # чтобы можно было делать запросы
+        # только с сайта ТТЖТ
+
         # "*://*.ttgt.org/*",
         # "*://ttgt.org/*",
         # "*://ttgt.org",

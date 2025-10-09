@@ -28,7 +28,7 @@ async def create_news(
         admin: AdminRequired,
         news: PostableNews
 ) -> PrivateNews:
-    news.validate()
+    news.check()
 
     with Session.begin() as session:
         new = DatabaseNews(
@@ -40,8 +40,8 @@ async def create_news(
                 author = news.author or f"{admin.second_name} {admin.first_name[0]}. {
                     (admin.middle_name[0] + '.') if admin.middle_name else ''
                 }",
-                post_type = news.post_type,
-                post_status = news.post_status
+                type = news.type,
+                status = news.status
             )
         try:
             session.add(new)
@@ -53,27 +53,36 @@ async def create_news(
             )
         )
 
-@adminRouter.patch("/news/{post_id:int}")
+@adminRouter.patch("/news/{news_id:int}")
 async def edit_news(
         admin: AdminRequired,
         news: PostableNews,
-        post_id: int
+        news_id: int
 ) -> PrivateNews:
-    news.validate()
+    news.check()
 
     with Session.begin() as session:
-        if session.scalar(select(DatabaseNews).where(DatabaseNews.id == post_id)) is None:
+        if session.scalar(select(DatabaseNews).where(DatabaseNews.id == news_id)) is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
         dump = news.model_dump()
         dump["publish_date"] = datetime.fromtimestamp(dump["publish_date"])
+
         (
             session
                 .query(DatabaseNews)
-                .filter(DatabaseNews.id == post_id)
+                .filter(DatabaseNews.id == news_id)
                 .update(dump)
         )
 
 
         return PrivateNews.from_orm(session.scalar(
-            select(DatabaseNews).where(DatabaseNews.id == post_id)
+            select(DatabaseNews).where(DatabaseNews.id == news_id)
         ))
+
+@adminRouter.delete("/news/{news_id:int}")
+async def delete_news(
+        admin: AdminRequired,
+        news_id: int
+):
+    ...

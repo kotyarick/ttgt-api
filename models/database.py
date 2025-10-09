@@ -6,13 +6,13 @@ from sqlalchemy import String, ForeignKey, Boolean, Column, DateTime, func, Enum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class PostType(enum.Enum):
+class NewsType(enum.Enum):
     News = 0
     Achievement = 1
     Education = 2
     Event = 3
 
-class PostStatus(enum.Enum):
+class NewsStatus(enum.Enum):
     Draft = 0
     Published = 1
 
@@ -30,8 +30,8 @@ class DatabaseNews(Base):
     publish_date = Column(DateTime(timezone=True), server_default=func.now())
     image_amount: Mapped[int]
     author: Mapped[str] = mapped_column(String(100))
-    post_type = Column(Enum(PostType))
-    post_status = Column(Enum(PostStatus))
+    type = Column(Enum(NewsType))
+    status = Column(Enum(NewsStatus))
 
 class DatabaseVacancy(Base):
     __tablename__ = "vacancies"
