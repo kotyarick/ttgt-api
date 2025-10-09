@@ -1,10 +1,9 @@
-from typing import Optional, Any, Self, Type, TypeVar
+from typing import Type, TypeVar
 
 import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from manager import password_hash
 from models.database import DatabaseNews, DatabaseTeacher, NewsType, NewsStatus, DatabaseAdmin
 from utils import smart_crop
 

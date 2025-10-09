@@ -1,23 +1,20 @@
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import status
-from sqlalchemy.sql.expression import update
 
 from database import Session
-from models.api import PrivateNews, PostableNews, Admin
+from models.api import PrivateNews, PostableNews
 from models.database import DatabaseNews
 from routes.admin import AdminRequired
-from utils import initials
 
 newsRouter = APIRouter(prefix="/news")
 
 @newsRouter.post("/")
 async def create_news(
-        admin: AdminRequired,
+        _admin: AdminRequired,
         news: PostableNews
 ) -> PrivateNews:
     news.check()
@@ -43,7 +40,7 @@ async def create_news(
 
 @newsRouter.patch("/{news_id:int}")
 async def edit_news(
-        admin: AdminRequired,
+        _admin: AdminRequired,
         news: PostableNews,
         news_id: int
 ) -> PrivateNews:
@@ -73,7 +70,7 @@ async def edit_news(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_news(
-        admin: AdminRequired,
+        _admin: AdminRequired,
         news_id: int
 ):
     with Session.begin() as session:

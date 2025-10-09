@@ -13,14 +13,14 @@ teachersRouter = APIRouter(prefix="/teachers")
 
 @teachersRouter.get("/", name="Получить список преподавателей")
 async def get_teachers_list(
-        admin: AdminRequired,
+        _admin: AdminRequired,
         offset: int = 0,
         limit: int = 20
 ) -> List[Teacher]:
     limit = min(limit, 20)
 
     with Session.begin() as session:
-        teachers: List[Teacher] = session.scalars(
+        teachers: List[DatabaseTeacher] = session.scalars(
             select(Teacher).offset(offset).limit(limit)
         ).all()
 
@@ -31,7 +31,7 @@ async def get_teachers_list(
 
 @teachersRouter.post("/", name="Добавить преподавателя")
 async def add_teacher(
-        admin: AdminRequired,
+        _admin: AdminRequired,
         teacher: CreateTeacher
 ) -> Teacher:
     with Session.begin() as session:
@@ -48,7 +48,7 @@ async def add_teacher(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_teacher(
-        admin: AdminRequired,
+        _admin: AdminRequired,
         teacher_id: int
 ):
     with Session.begin() as session:

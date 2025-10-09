@@ -1,7 +1,6 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException
-from fastapi.requests import Request
 from sqlalchemy import select
 from fastapi import status
 
@@ -20,6 +19,7 @@ async def get_news_list(
     limit = min(limit, 15)
 
     with Session.begin() as session:
+        # noinspection PyTypeChecker
         news: List[DatabaseNews] = session.scalars(
             select(DatabaseNews).where(DatabaseNews.status == NewsStatus.Published).offset(offset).limit(limit)
         ).all()
@@ -33,6 +33,7 @@ async def get_news_list(
 async def get_news(slug: str) -> PublicNews:
     with Session.begin() as session:
         try:
+            # noinspection PyTypeChecker
             news = session.scalar(
                 select(DatabaseNews).where(DatabaseNews.status == NewsStatus.Published and DatabaseNews.slug == slug)
             )

@@ -36,7 +36,7 @@ def initials(
         second_name: str,
         middle_name: str = "",
 
-        **argv
+        **_argv
 ) -> str:
     return f"""{second_name} {first_name[0]}. {
         (middle_name[0] + '.') if middle_name else ''

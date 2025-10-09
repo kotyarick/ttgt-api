@@ -3,10 +3,8 @@ import string
 from sys import argv
 
 from argon2 import PasswordHasher
-from pygments.lexer import default
 
 from database import Session
-from models.api import Admin
 from models.database import DatabaseTeacher
 from utils import regenerate_secret
 

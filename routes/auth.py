@@ -1,10 +1,9 @@
 import json
 from base64 import b64encode, b64decode
 from hashlib import sha256
-from typing import Annotated
 
 from argon2 import PasswordHasher
-from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi import APIRouter, HTTPException
 from datetime import datetime
 
 from fastapi import status
