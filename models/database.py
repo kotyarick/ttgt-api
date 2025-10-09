@@ -12,7 +12,7 @@ class PostType(enum.Enum):
     Education = 2
     Event = 3
 
-class Status(enum.Enum):
+class PostStatus(enum.Enum):
     Draft = 0
     Published = 1
 
@@ -29,9 +29,9 @@ class DatabaseNews(Base):
     body: Mapped[str]
     publish_date = Column(DateTime(timezone=True), server_default=func.now())
     image_amount: Mapped[int]
-    author = String(100)
+    author: Mapped[str] = mapped_column(String(100))
     post_type = Column(Enum(PostType))
-    post_status = Column(Enum(Status))
+    post_status = Column(Enum(PostStatus))
 
 class DatabaseVacancy(Base):
     __tablename__ = "vacancies"

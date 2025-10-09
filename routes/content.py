@@ -7,7 +7,7 @@ from fastapi import status
 
 from database import Session
 from models.api import IncompleteNews, PublicNews
-from models.database import DatabaseNews, Status
+from models.database import DatabaseNews, PostStatus
 
 contentRoutes = APIRouter(prefix="/content")
 
@@ -20,7 +20,7 @@ async def get_news_list(
 
     with Session.begin() as session:
         news: List[DatabaseNews] = session.scalars(
-            select(DatabaseNews).where(DatabaseNews.post_status == Status.Published).offset(offset).limit(limit)
+            select(DatabaseNews).where(DatabaseNews.post_status == PostStatus.Published).offset(offset).limit(limit)
         ).all()
 
         return [
@@ -33,7 +33,7 @@ async def get_news(slug: str) -> PublicNews:
     with Session.begin() as session:
         try:
             news = session.scalar(
-                select(DatabaseNews).where(DatabaseNews.post_status == Status.Published and DatabaseNews.slug == slug)
+                select(DatabaseNews).where(DatabaseNews.post_status == PostStatus.Published and DatabaseNews.slug == slug)
             )
 
             return PublicNews.from_orm(news)

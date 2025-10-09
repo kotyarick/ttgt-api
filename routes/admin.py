@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Annotated
 
-from certifi import where
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import status
+from sqlalchemy.sql.expression import update
 
 from database import Session
 from models.api import PrivateNews, PostableNews, Admin
@@ -28,6 +28,8 @@ async def create_news(
         admin: AdminRequired,
         news: PostableNews
 ) -> PrivateNews:
+    news.validate()
+
     with Session.begin() as session:
         new = DatabaseNews(
                 slug = news.slug,
@@ -56,13 +58,22 @@ async def edit_news(
         admin: AdminRequired,
         news: PostableNews,
         post_id: int
-):
+) -> PrivateNews:
+    news.validate()
+
     with Session.begin() as session:
+        if session.scalar(select(DatabaseNews).where(DatabaseNews.id == post_id)) is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        dump = news.model_dump()
+        dump["publish_date"] = datetime.fromtimestamp(dump["publish_date"])
         (
-            update(DatabaseNews)
-            .where(DatabaseNews.id == post_id)
-            .values(**news.model_dump())
+            session
+                .query(DatabaseNews)
+                .filter(DatabaseNews.id == post_id)
+                .update(dump)
         )
-        return session.scalar(
+
+
+        return PrivateNews.from_orm(session.scalar(
             select(DatabaseNews).where(DatabaseNews.id == post_id)
-        )
+        ))

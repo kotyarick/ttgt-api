@@ -1,7 +1,10 @@
 from typing import Optional, Any, Self
+
+import fastapi
+from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.database import DatabaseNews, DatabaseAdmin, PostType, Status
+from models.database import DatabaseNews, DatabaseAdmin, PostType, PostStatus
 from utils import smart_crop
 
 
@@ -9,6 +12,7 @@ class IncompleteNews(BaseModel):
     """
     Неполная новость техникума, отправляется в списке.
     """
+    id: int
 
     slug: str
     """
@@ -34,6 +38,7 @@ class IncompleteNews(BaseModel):
 
     def from_orm(obj: DatabaseNews) -> Self:
         return IncompleteNews(
+            id = obj.id,
             slug = obj.slug,
             title = obj.title,
             text = smart_crop(obj.body, 100),
@@ -46,6 +51,8 @@ class PublicNews(BaseModel):
     """
     Полная новость техникума
     """
+
+    id: int
 
     image_amount: int
     """
@@ -78,6 +85,7 @@ class PublicNews(BaseModel):
 
     def from_orm(obj: DatabaseNews) -> Self:
         return PublicNews(
+            id = obj.id,
             image_amount = obj.image_amount,
             slug = obj.slug,
             title = obj.title,
@@ -96,7 +104,27 @@ class PostableNews(BaseModel):
     publish_date: int
     author: str = ""
     post_type: PostType = PostType.News
-    post_status: Status = Status.Draft
+    post_status: PostStatus = PostStatus.Draft
+
+    def validate(self):
+        try:
+            assert type(self.slug) == str
+            assert type(self.title) == str
+            assert type(self.body) == str
+            assert type(self.publish_date) == int
+            assert type(self.author) == str
+            assert type(self.post_type) == PostType
+            assert type(self.post_status) == PostStatus
+
+            assert 0 < len(self.slug) <= 15
+            assert self.title != ""
+            assert self.body != ""
+            assert self.author != ""
+            assert 0 <= self.post_type.value <= 3
+            assert 0 <= self.post_status.value <= 1
+        except AssertionError as error:
+            print(error)
+            raise HTTPException(status_code=fastapi.status.HTTP_400_BAD_REQUEST)
 
 class PrivateNews(BaseModel):
     """ Новость + приватные данные """
@@ -108,7 +136,7 @@ class PrivateNews(BaseModel):
     image_amount: int
     author: str
     post_type: PostType
-    post_status: Status
+    post_status: PostStatus
 
     def from_orm(obj: DatabaseNews) -> Self:
         return PrivateNews(
