@@ -8,6 +8,7 @@ from fastapi import status
 from database import Session
 from models.api import IncompleteNews, PublicNews
 from models.database import DatabaseNews, NewsStatus
+import traceback
 
 contentRoutes = APIRouter(prefix="/content")
 
@@ -38,5 +39,5 @@ async def get_news(slug: str) -> PublicNews:
 
             return PublicNews.from_database(news)
         except Exception as exception:
-            print(exception)
+            print(traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
