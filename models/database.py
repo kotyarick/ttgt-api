@@ -12,6 +12,8 @@ class NewsType(enum.Enum):
     Education = 2
     Event = 3
 
+
+
 class NewsStatus(enum.Enum):
     Draft = 0
     Published = 1

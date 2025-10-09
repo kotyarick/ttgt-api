@@ -37,7 +37,9 @@ async def get_news(slug: str) -> PublicNews:
                 select(DatabaseNews).where(DatabaseNews.status == NewsStatus.Published and DatabaseNews.slug == slug)
             )
 
+            print(news.id)
+
             return PublicNews.from_database(news)
-        except Exception as exception:
+        except:
             print(traceback.format_exc())
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

@@ -90,14 +90,14 @@ class PublicNews(BaseModel):
     @classmethod
     def from_database(cls: Type[PN], data: DatabaseNews) -> PN:
         return PublicNews(
-            id = cls.id,
-            image_amount = cls.image_amount,
-            slug = cls.slug,
-            title = cls.title,
-            text = cls.body,
-            publish_date= cls.publish_date.timestamp(),
-            type=int(cls.type),
-            author=cls.author
+            id = data.id,
+            image_amount = data.image_amount,
+            slug = data.slug,
+            title = data.title,
+            text = data.body,
+            publish_date= data.publish_date.timestamp(),
+            type=data.type,
+            author=data.author
         )
 
 class PostableNews(BaseModel):
