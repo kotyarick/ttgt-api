@@ -59,8 +59,8 @@ async def login(request: LoginRequest) -> LoginResult:
             db_admin: DatabaseAdmin = session.scalar(
                 select(DatabaseAdmin)
                     .where(
-                        DatabaseAdmin.second_name ==
-                        request.second_name
+                    DatabaseAdmin.second_name ==
+                    request.second_name
                     )
             )
 
@@ -75,8 +75,3 @@ async def login(request: LoginRequest) -> LoginResult:
     except Exception as exception:
         print("Login error:", exception)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-def admin_login(
-        x_authorization: Annotated[str | None, Header()] = None,
-) -> Admin:
-    return extract_jwt(x_authorization)

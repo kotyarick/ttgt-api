@@ -5,6 +5,8 @@ from typing import Optional
 from sqlalchemy import String, ForeignKey, Boolean, Column, DateTime, func, Enum, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+from models.api import Teacher
+
 
 class NewsType(enum.Enum):
     News = 0
@@ -69,6 +71,29 @@ class DatabaseAdmin(Base):
     """ Отчество """
 
     password_hash: Mapped[str]
+
+class DatabaseTeacher(Base):
+    __tablename__ = "teachers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    first_name: Mapped[str]
+    """ Имя """
+
+    second_name: Mapped[str]
+    """ Фамилия """
+
+    middle_name: Mapped[Optional[str]]
+    """ Отчество """
+
+    @classmethod
+    def from_database(cls, data: Teacher):
+        return Teacher(
+            id = data.id,
+            first_name = data.first_name,
+            second_name = data.second_name,
+            middle_name = data.middle_name
+        )
 
 class DatabaseComment(Base):
     __tablename__ = "comments"

@@ -10,20 +10,12 @@ from sqlalchemy.sql.expression import update
 from database import Session
 from models.api import PrivateNews, PostableNews, Admin
 from models.database import DatabaseNews
-from routes.auth import admin_login
+from routes.admin import AdminRequired
+from utils import initials
 
-adminRouter = APIRouter(prefix="/admin")
+newsRouter = APIRouter(prefix="/news")
 
-AdminRequired = Annotated[Admin, Depends(admin_login)]
-
-@adminRouter.get("/super-secret")
-async def get_super_secret_data(
-        admin: AdminRequired
-) -> dict[str, str]:
-    print(admin)
-    return { "data": "У тебя получилось" }
-
-@adminRouter.post("/news")
+@newsRouter.post("/")
 async def create_news(
         admin: AdminRequired,
         news: PostableNews
@@ -36,24 +28,20 @@ async def create_news(
                 title = news.title,
                 body = news.body,
                 publish_date = datetime.fromtimestamp(news.publish_date),
+                #TODO: кол-во картинок
                 image_amount = 0,
-                author = news.author or f"{admin.second_name} {admin.first_name[0]}. {
-                    (admin.middle_name[0] + '.') if admin.middle_name else ''
-                }",
+                author = news.author,
                 type = news.type,
                 status = news.status
             )
         try:
             session.add(new)
+            session.flush()
+            return PrivateNews.from_database(new)
         except IntegrityError:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
-        return PrivateNews.from_database(
-            session.scalar(
-                select(DatabaseNews).where(DatabaseNews.slug == news.slug)
-            )
-        )
 
-@adminRouter.patch("/news/{news_id:int}")
+@newsRouter.patch("/{news_id:int}")
 async def edit_news(
         admin: AdminRequired,
         news: PostableNews,
@@ -80,7 +68,10 @@ async def edit_news(
             select(DatabaseNews).where(DatabaseNews.id == news_id)
         ))
 
-@adminRouter.delete("/news/{news_id:int}", status_code=204)
+@newsRouter.delete(
+    "/{news_id:int}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
 async def delete_news(
         admin: AdminRequired,
         news_id: int

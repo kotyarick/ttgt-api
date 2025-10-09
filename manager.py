@@ -7,7 +7,7 @@ from pygments.lexer import default
 
 from database import Session
 from models.api import Admin
-from models.database import DatabaseAdmin
+from models.database import DatabaseTeacher
 from utils import regenerate_secret
 
 if len(argv) < 2:
@@ -30,7 +30,7 @@ match argv[1]:
 
         with Session.begin() as session:
             session.add(
-                DatabaseAdmin(
+                DatabaseTeacher(
                     first_name = first_name,
                     second_name = second_name,
                     middle_name = middle_name,

@@ -4,11 +4,13 @@ import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.database import DatabaseNews, DatabaseAdmin, NewsType, NewsStatus
+from manager import password_hash
+from models.database import DatabaseNews, DatabaseTeacher, NewsType, NewsStatus, DatabaseAdmin
 from utils import smart_crop
 
 IN = TypeVar('IN', bound='IncompleteNews')
 PN = TypeVar('PN', bound='PublicNews')
+PR = TypeVar('PR', bound='PrivateNews')
 A = TypeVar('A', bound='Admin')
 
 class IncompleteNews(BaseModel):
@@ -138,7 +140,7 @@ class PrivateNews(BaseModel):
     status: NewsStatus
 
     @classmethod
-    def from_database(cls: Type[PN], data: DatabaseNews) -> PN:
+    def from_database(cls: Type[PR], data: DatabaseNews) -> PR:
         return PrivateNews(
             id = data.id,
             slug = data.slug,
@@ -167,15 +169,52 @@ class Admin(BaseModel):
     middle_name: str
     """ Отчество """
 
+    password_hash: str
+
     @classmethod
     def from_database(cls: Type[A], data: DatabaseAdmin) -> A:
         return Admin(
             id=data.id,
             first_name=data.first_name,
             second_name=data.second_name,
+            middle_name=data.middle_name,
+            password_hash=data.password_hash
+        )
+
+class Teacher(BaseModel):
+    """
+    Преподаватель.
+    """
+
+    id: int
+
+    first_name: str
+    """ Имя """
+
+    second_name: str
+    """ Фамилия """
+
+    middle_name: str
+    """ Отчество """
+
+    @classmethod
+    def from_database(cls, data: DatabaseTeacher):
+        return Teacher(
+            id=data.id,
+            first_name=data.first_name,
+            second_name=data.second_name,
             middle_name=data.middle_name
         )
 
+class CreateTeacher(BaseModel):
+    first_name: str
+    """ Имя """
+
+    second_name: str
+    """ Фамилия """
+
+    middle_name: str
+    """ Отчество """
 
 class Comment(BaseModel):
     """

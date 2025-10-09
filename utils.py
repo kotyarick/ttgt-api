@@ -30,3 +30,14 @@ def regenerate_secret():
 
     with open("secret", "wb") as secret:
         secret.write(random.randbytes(256))
+
+def initials(
+        first_name: str,
+        second_name: str,
+        middle_name: str = "",
+
+        **argv
+) -> str:
+    return f"""{second_name} {first_name[0]}. {
+        (middle_name[0] + '.') if middle_name else ''
+    }"""
