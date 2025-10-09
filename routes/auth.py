@@ -68,7 +68,7 @@ async def login(request: LoginRequest) -> LoginResult:
 
             hasher.verify(db_admin.password_hash, request.password)
 
-            admin = Admin.from_orm(db_admin)
+            admin = Admin.from_database(db_admin)
 
         return LoginResult(
             token=create_jwt(admin),

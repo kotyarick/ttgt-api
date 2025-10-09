@@ -36,7 +36,7 @@ async def get_news(slug: str) -> PublicNews:
                 select(DatabaseNews).where(DatabaseNews.status == NewsStatus.Published and DatabaseNews.slug == slug)
             )
 
-            return PublicNews.from_orm(news)
+            return PublicNews.from_database(news)
         except Exception as exception:
             print(exception)
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

@@ -1,4 +1,4 @@
-from typing import Optional, Any, Self, Type
+from typing import Optional, Any, Self, Type, TypeVar
 
 import fastapi
 from fastapi import HTTPException
@@ -7,6 +7,9 @@ from pydantic import BaseModel
 from models.database import DatabaseNews, DatabaseAdmin, NewsType, NewsStatus
 from utils import smart_crop
 
+IN = TypeVar('IN', bound='IncompleteNews')
+PN = TypeVar('PN', bound='PublicNews')
+A = TypeVar('A', bound='Admin')
 
 class IncompleteNews(BaseModel):
     """
@@ -37,7 +40,7 @@ class IncompleteNews(BaseModel):
     type: int
 
     @classmethod
-    def from_database(cls: Type[T], data: DatabaseNews) -> T:
+    def from_database(cls: Type[IN], data: DatabaseNews) -> IN:
         return IncompleteNews(
             id = data.id,
             slug = data.slug,
@@ -85,7 +88,7 @@ class PublicNews(BaseModel):
     author: str
 
     @classmethod
-    def from_orm(cls: Type[T], data: DatabaseNews) -> T:
+    def from_database(cls: Type[PN], data: DatabaseNews) -> PN:
         return PublicNews(
             id = cls.id,
             image_amount = cls.image_amount,
@@ -135,7 +138,7 @@ class PrivateNews(BaseModel):
     status: NewsStatus
 
     @classmethod
-    def from_orm(cls: Type[T], data: DatabaseNews) -> T:
+    def from_database(cls: Type[PN], data: DatabaseNews) -> PN:
         return PrivateNews(
             id = data.id,
             slug = data.slug,
@@ -165,7 +168,7 @@ class Admin(BaseModel):
     """ Отчество """
 
     @classmethod
-    def from_orm(cls: Type[T], data: DatabaseAdmin) -> T:
+    def from_database(cls: Type[A], data: DatabaseAdmin) -> A:
         return Admin(
             id=data.id,
             first_name=data.first_name,

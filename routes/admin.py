@@ -47,7 +47,7 @@ async def create_news(
             session.add(new)
         except IntegrityError:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
-        return PrivateNews.from_orm(
+        return PrivateNews.from_database(
             session.scalar(
                 select(DatabaseNews).where(DatabaseNews.slug == news.slug)
             )
@@ -76,7 +76,7 @@ async def edit_news(
         )
 
 
-        return PrivateNews.from_orm(session.scalar(
+        return PrivateNews.from_database(session.scalar(
             select(DatabaseNews).where(DatabaseNews.id == news_id)
         ))
 
