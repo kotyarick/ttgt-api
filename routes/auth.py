@@ -39,16 +39,14 @@ def extract_jwt(jwt: str) -> Admin:
 
         #  1. Проверяем подпись
         assert signature.decode() == sha256(secret + metadata + b"." + admin_data).hexdigest()
-        print("Signature is OK")
 
-        #  Достаём данные
+        #  2. Достаём данные
         metadata, admin_data = (json.loads(b64decode(metadata).decode()),
                                 json.loads(b64decode(admin_data).decode()))
-        #  2. Проверяем протух ли токен
-        print(metadata["expires_at"], datetime.now().timestamp())
+        #  3. Проверяем протух ли токен
         assert metadata["expires_at"] > datetime.now().timestamp()
 
-        #  3. Даём данные из токена
+        #  4. Даём данные из токена
         return Admin(**admin_data)
     except Exception as exception:
         print("Extract JWT error: ", exception)

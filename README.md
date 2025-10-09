@@ -4,7 +4,7 @@
 
 ```
 python -m venv .venv
-.venv/bin/activate.exe  (вроде как)
+.venv\bin\activate.ps1
 pip install -U pip
 pip install -r requirements.txt
 fastapi run main.py

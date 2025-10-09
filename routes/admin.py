@@ -80,9 +80,16 @@ async def edit_news(
             select(DatabaseNews).where(DatabaseNews.id == news_id)
         ))
 
-@adminRouter.delete("/news/{news_id:int}")
+@adminRouter.delete("/news/{news_id:int}", status_code=204)
 async def delete_news(
         admin: AdminRequired,
         news_id: int
 ):
-    ...
+    with Session.begin() as session:
+        (
+            session
+                .query(DatabaseNews)
+                .filter(DatabaseNews.id == news_id)
+                .delete()
+        )
+
