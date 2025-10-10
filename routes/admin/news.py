@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
@@ -81,3 +82,35 @@ async def delete_news(
                 .delete()
         )
 
+@newsRouter.get("/news", name="Получить список всех новостей")
+async def get_news_list(
+        offset: int = 0,
+        limit: int = 10
+) -> List[PrivateNews]:
+    limit = min(limit, 15)
+
+    with Session.begin() as session:
+        # noinspection PyTypeChecker
+        news: List[DatabaseNews] = session.scalars(
+            select(DatabaseNews).offset(offset).limit(limit)
+        ).all()
+
+        return [
+            PrivateNews.from_database(new)
+            for new in news
+        ]
+
+@newsRouter.get("/news/{slug:str}", name="Получить новость")
+async def get_news(slug: str) -> PrivateNews:
+    with Session.begin() as session:
+        try:
+            # noinspection PyTypeChecker
+            news = session.scalar(
+                select(DatabaseNews).where(DatabaseNews.slug == slug)
+            )
+
+            print(news.id)
+
+            return PrivateNews.from_database(news)
+        except:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

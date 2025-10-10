@@ -11,12 +11,15 @@ class NewsType(enum.Enum):
     Education = 2
     Event = 3
 
+
 class NewsStatus(enum.Enum):
     Draft = 0
     Published = 1
 
+
 class Base(DeclarativeBase):
-     pass
+    pass
+
 
 class DatabaseNews(Base):
     __tablename__ = "news"
@@ -32,6 +35,7 @@ class DatabaseNews(Base):
     type = Column(Enum(NewsType))
     status = Column(Enum(NewsStatus))
 
+
 class DatabaseVacancy(Base):
     __tablename__ = "vacancies"
 
@@ -43,6 +47,7 @@ class DatabaseVacancy(Base):
     is_active = Column(Boolean())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
 class DatabaseSettings(Base):
     __tablename__ = "settings"
 
@@ -50,6 +55,7 @@ class DatabaseSettings(Base):
 
     key = String(100)
     value = String()
+
 
 class DatabaseAdmin(Base):
     __tablename__ = "admins"
@@ -67,6 +73,7 @@ class DatabaseAdmin(Base):
 
     password_hash: Mapped[str]
 
+
 class DatabaseTeacher(Base):
     __tablename__ = "teachers"
 
@@ -81,6 +88,7 @@ class DatabaseTeacher(Base):
     middle_name: Mapped[Optional[str]]
     """ Отчество """
 
+
 class DatabaseComment(Base):
     __tablename__ = "comments"
 
@@ -91,6 +99,7 @@ class DatabaseComment(Base):
     content = Column(String(512), nullable=False)
     approved = Column(Boolean(), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 class DatabaseAppeal(Base):
     __tablename__ = "appeals"
