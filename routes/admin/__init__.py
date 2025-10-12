@@ -11,6 +11,9 @@ def admin_login(
 ) -> Admin:
     return extract_jwt(x_authorization)
 
+#  Depends, который даёт информацию об админе
+#  из токена в заголовке запроса
+#  или даёт 401 при ошибке
 AdminRequired: TypeAlias = Annotated["Admin", Depends(admin_login)]
 
 adminRouter = APIRouter(prefix="/admin")

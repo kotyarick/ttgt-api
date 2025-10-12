@@ -8,16 +8,17 @@ from database import Session
 from models.api import Teacher, CreateTeacher
 from models.database import DatabaseTeacher
 from routes.admin import AdminRequired
+from api_tags import ADMIN_ONLY, TEACHERS
 
 teachersRouter = APIRouter(prefix="/teachers")
 
-@teachersRouter.get("/", name="Получить список преподавателей")
+@teachersRouter.get("/", name="Получить список преподавателей", tags=[ADMIN_ONLY, TEACHERS])
 async def get_teachers_list(
         _admin: AdminRequired,
         offset: int = 0,
         limit: int = 20
 ) -> List[Teacher]:
-    limit = min(limit, 20)
+    limit = min(limit, 100)
 
     with Session.begin() as session:
         teachers: List[DatabaseTeacher] = session.scalars(
@@ -29,7 +30,7 @@ async def get_teachers_list(
             for db_teacher in teachers
         ]
 
-@teachersRouter.post("/", name="Добавить преподавателя")
+@teachersRouter.post("/", name="Добавить преподавателя", tags=[ADMIN_ONLY, TEACHERS])
 async def add_teacher(
         _admin: AdminRequired,
         teacher: CreateTeacher
@@ -45,7 +46,8 @@ async def add_teacher(
 @teachersRouter.delete(
     "/{teacher_id:int}",
     name="Убрать преподавателя",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=[ADMIN_ONLY, TEACHERS]
 )
 async def delete_teacher(
         _admin: AdminRequired,

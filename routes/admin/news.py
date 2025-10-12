@@ -10,14 +10,19 @@ from database import Session
 from models.api import PrivateNews, PostableNews
 from models.database import DatabaseNews
 from routes.admin import AdminRequired
+from api_tags import ADMIN_ONLY, NEWS
 
 newsRouter = APIRouter(prefix="/news")
 
-@newsRouter.post("/")
+@newsRouter.post("/", name="Создать новость", tags=[ADMIN_ONLY, NEWS])
 async def create_news(
         _admin: AdminRequired,
         news: PostableNews
 ) -> PrivateNews:
+    """ Создать новость
+
+    Если статус новости Draft, то она не будет видна на главной странице
+    """
     news.check()
 
     with Session.begin() as session:
@@ -39,7 +44,7 @@ async def create_news(
         except IntegrityError:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
-@newsRouter.patch("/{news_id:int}")
+@newsRouter.patch("/{news_id:int}", name="Отредактировать новость", tags=[ADMIN_ONLY, NEWS])
 async def edit_news(
         _admin: AdminRequired,
         news: PostableNews,
@@ -48,7 +53,13 @@ async def edit_news(
     news.check()
 
     with Session.begin() as session:
-        if session.scalar(select(DatabaseNews).where(DatabaseNews.id == news_id)) is None:
+        if (
+            session
+                .scalar(
+                    select(DatabaseNews)
+                        .where(DatabaseNews.id == news_id)
+                )
+        ) is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
         dump = news.model_dump()
@@ -68,7 +79,9 @@ async def edit_news(
 
 @newsRouter.delete(
     "/{news_id:int}",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    name="Удалить новость",
+    tags=[ADMIN_ONLY, NEWS]
 )
 async def delete_news(
         _admin: AdminRequired,
@@ -82,12 +95,15 @@ async def delete_news(
                 .delete()
         )
 
-@newsRouter.get("/", name="Получить список всех новостей")
+@newsRouter.get("/", name="Получить список всех новостей", tags=[ADMIN_ONLY, NEWS])
 async def get_news_list(
         offset: int = 0,
         limit: int = 10
 ) -> List[PrivateNews]:
-    limit = min(limit, 15)
+    """
+    В отличии от GET /content/news, этот endpoint даст неопубликованные новости
+    """
+    limit = min(limit, 100)
 
     with Session.begin() as session:
         # noinspection PyTypeChecker
@@ -100,8 +116,11 @@ async def get_news_list(
             for new in news
         ]
 
-@newsRouter.get("/{slug:str}", name="Получить новость")
+@newsRouter.get("/{slug:str}", name="Получить новость", tags=[ADMIN_ONLY, NEWS])
 async def get_news(slug: str) -> PrivateNews:
+    """
+    В отличии от GET /content/news, этот endpoint даст неопубликованную новость
+    """
     with Session.begin() as session:
         try:
             # noinspection PyTypeChecker
