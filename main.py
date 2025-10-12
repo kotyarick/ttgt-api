@@ -4,7 +4,7 @@ from utils import regenerate_secret
 if not os.path.isfile("secret"):
     regenerate_secret()
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.admin import adminRouter
