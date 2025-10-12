@@ -4,7 +4,7 @@ from utils import regenerate_secret
 if not os.path.isfile("secret"):
     regenerate_secret()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.admin import adminRouter
@@ -35,6 +35,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(Exception)
+async def exception_handler(
+    request: Request, 
+    exc: Exception
+):
+    print(request.path, "Ошибка:", exc)
+    raise HTTPException(
+        status_code=500,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": ""
+        }
+    )
 
 app.include_router(contentRouter)
 app.include_router(authRouter)
