@@ -11,11 +11,31 @@ from utils import regenerate_secret
 if len(argv) < 2:
     argv.append("")
 
+def non_empty(inpu: str) -> bool:
+    '''
+    Для использования в `checked_input`
+
+    Проверяет пуста ли строка
+    Строка исключительно из пробелов считается пустой
+    '''
+    return inpu.strip() != ""
+
+def checked_input(prompt: str, check) -> str:
+    '''
+    Запрашивает ввод повторно до тех пор,
+    пока ввод не будет удовлетворять условию
+    '''
+
+    while True:
+        inpu = input(prompt)
+        if check(inpu):
+            return inpu
+
 match argv[1]:
     case "create-account":
         print("Добавление аккаунта админа.")
-        first_name = input("Имя: ")
-        second_name = input("Фамилия: ")
+        first_name = checked_input("Имя: ", non_empty)
+        second_name = checked_input("Фамилия: ", non_empty)
         middle_name = input("Отчество (можно оставить пустым): ")
         password = input("Пароль (если оставить пустым, то будет сгенерирован и написан случайный пароль): ")
         if not password:
