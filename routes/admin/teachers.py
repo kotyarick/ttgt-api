@@ -21,7 +21,7 @@ async def get_teachers_list(
 
     with Session.begin() as session:
         teachers: List[DatabaseTeacher] = session.scalars(
-            select(Teacher).offset(offset).limit(limit)
+            select(DatabaseTeacher).offset(offset).limit(limit)
         ).all()
 
         return [
