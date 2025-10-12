@@ -101,7 +101,7 @@ async def get_news_list(
         limit: int = 10
 ) -> List[PrivateNews]:
     """
-    В отличии от GET /content/news, этот endpoint даст неопубликованные новости
+    В отличие от GET /content/news, этот endpoint даст неопубликованные новости
     """
     limit = min(limit, 100)
 

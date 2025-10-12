@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from .news import newsRouter
-
 
 contentRouter = APIRouter(prefix="/content")
 

@@ -2,7 +2,8 @@ import enum
 from typing import Optional
 
 from sqlalchemy import String, ForeignKey, Boolean, Column, DateTime, func, Enum
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, mapped_column
+from sqlalchemy.orm.attributes import Mapped
 
 
 class NewsType(enum.Enum):

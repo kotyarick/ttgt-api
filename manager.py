@@ -11,25 +11,25 @@ from utils import regenerate_secret
 if len(argv) < 2:
     argv.append("")
 
-def non_empty(inpu: str) -> bool:
-    '''
+def non_empty(user_input: str) -> bool:
+    """
     Для использования в `checked_input`
 
-    Проверяет пуста ли строка
-    Строка исключительно из пробелов считается пустой
-    '''
-    return inpu.strip() != ""
+    Проверяет пуста ли строка.
+    Строка исключительно из пробелов считается пустой.
+    """
+    return user_input.strip() != ""
 
 def checked_input(prompt: str, check) -> str:
-    '''
+    """
     Запрашивает ввод повторно до тех пор,
-    пока ввод не будет удовлетворять условию
-    '''
+    пока ввод не будет удовлетворять условию.
+    """
 
     while True:
-        inpu = input(prompt)
-        if check(inpu):
-            return inpu
+        user_intput = input(prompt)
+        if check(user_intput):
+            return user_intput
 
 match argv[1]:
     case "create-account":
