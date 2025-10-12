@@ -1,6 +1,9 @@
 import random
 
 
+def crop_first_paragraph(text: str) -> str:
+    return text.split("\n", 1)[0]
+
 def smart_crop(text: str, max_size: int) -> str:
     """
     Обрезает текст по предложениям.

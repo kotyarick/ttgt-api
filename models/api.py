@@ -1,11 +1,11 @@
-from typing import Type, TypeVar
+from typing import Type, TypeVar, Optional, List
 
 import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
 from models.database import DatabaseNews, DatabaseTeacher, NewsType, NewsStatus, DatabaseAdmin
-from utils import smart_crop
+from utils import smart_crop, crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompleteNews')
 PN = TypeVar('PN', bound='PublicNews')
@@ -40,15 +40,18 @@ class IncompleteNews(BaseModel):
 
     type: int
 
+    images: List[str]
+
     @classmethod
     def from_database(cls: Type[IN], data: DatabaseNews) -> IN:
         return IncompleteNews(
             id = data.id,
             slug = data.slug,
             title = data.title,
-            text = smart_crop(data.body, 100),
+            text = crop_first_paragraph(data.body),
             publish_date= round(float(data.publish_date.timestamp())),
-            type=data.type
+            type=data.type,
+            images=data.images.split("\n")
         )
 
 
@@ -59,7 +62,7 @@ class PublicNews(BaseModel):
 
     id: int
 
-    image_amount: int
+    # image_amount: int
     """
     Количество картинок.
     Получить картинку: GET /news/{slug}/{index}.png
@@ -88,11 +91,13 @@ class PublicNews(BaseModel):
     type: int
     author: str
 
+    images: List[str]
+
     @classmethod
     def from_database(cls: Type[PN], data: DatabaseNews) -> PN:
         return PublicNews(
             id = data.id,
-            image_amount = data.image_amount,
+            images = data.images.split("\n"),
             slug = data.slug,
             title = data.title,
             text = data.body,
@@ -133,7 +138,7 @@ class PrivateNews(BaseModel):
     title: str
     body: str
     publish_date: int
-    image_amount: int
+    images: List[str]
     author: str
     type: NewsType
     status: NewsStatus
@@ -146,7 +151,7 @@ class PrivateNews(BaseModel):
             title = data.title,
             body = data.body,
             publish_date = round(float(data.publish_date.timestamp())),
-            image_amount = data.image_amount,
+            images = data.images.split("\n"),
             author = data.author,
             type = data.type,
             status = data.status
@@ -165,7 +170,7 @@ class Admin(BaseModel):
     second_name: str
     """ Фамилия """
 
-    middle_name: str
+    middle_name: str = ""
     """ Отчество """
 
     password_hash: str
@@ -187,22 +192,14 @@ class Teacher(BaseModel):
 
     id: int
 
-    first_name: str
-    """ Имя """
-
-    second_name: str
-    """ Фамилия """
-
-    middle_name: str
-    """ Отчество """
+    initials: str
+    """ Инициалы """
 
     @classmethod
     def from_database(cls, data: DatabaseTeacher):
         return Teacher(
             id=data.id,
-            first_name=data.first_name,
-            second_name=data.second_name,
-            middle_name=data.middle_name
+            initials=data.initials
         )
 
 class CreateTeacher(BaseModel):
@@ -212,7 +209,7 @@ class CreateTeacher(BaseModel):
     second_name: str
     """ Фамилия """
 
-    middle_name: str
+    middle_name: str = ""
     """ Отчество """
 
 class Comment(BaseModel):

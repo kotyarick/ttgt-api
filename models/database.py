@@ -1,5 +1,5 @@
 import enum
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import String, ForeignKey, Boolean, Column, DateTime, func, Enum
 from sqlalchemy.orm import DeclarativeBase, mapped_column
@@ -7,15 +7,33 @@ from sqlalchemy.orm.attributes import Mapped
 
 
 class NewsType(enum.Enum):
+    """
+    Тип новости
+    """
+
     News = 0
+    """ Новость """
+
     Achievement = 1
+    """ Достижение """
+
     Education = 2
+    """ Образование """
+
     Event = 3
+    """ Событие """
 
 
 class NewsStatus(enum.Enum):
+    """
+    Статус новости
+    """
+
     Draft = 0
+    """ Черновик. Не отображается на главной странице """
+
     Published = 1
+    """ Новость опубликована """
 
 
 class Base(DeclarativeBase):
@@ -31,7 +49,7 @@ class DatabaseNews(Base):
     title: Mapped[str]
     body: Mapped[str]
     publish_date = Column(DateTime(timezone=True), server_default=func.now())
-    image_amount: Mapped[int]
+    images: Mapped[str]
     author: Mapped[str] = mapped_column(String(100))
     type = Column(Enum(NewsType))
     status = Column(Enum(NewsStatus))
@@ -80,14 +98,8 @@ class DatabaseTeacher(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    first_name: Mapped[str]
-    """ Имя """
-
-    second_name: Mapped[str]
-    """ Фамилия """
-
-    middle_name: Mapped[Optional[str]]
-    """ Отчество """
+    initials: Mapped[str]
+    """ Инициалы """
 
 
 class DatabaseComment(Base):

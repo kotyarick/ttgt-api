@@ -2,6 +2,7 @@ from typing import Annotated, TypeAlias
 
 from fastapi import Depends, APIRouter, Header
 
+from api_tags import ADMIN_ONLY
 from models.api import Admin
 from routes.auth import extract_jwt
 
@@ -16,7 +17,7 @@ def admin_login(
 #  или даёт 401 при ошибке
 AdminRequired: TypeAlias = Annotated["Admin", Depends(admin_login)]
 
-adminRouter = APIRouter(prefix="/admin")
+adminRouter = APIRouter(prefix="/admin", tags=[ADMIN_ONLY])
 
 @adminRouter.get("/super-secret")
 async def get_super_secret_data(

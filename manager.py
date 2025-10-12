@@ -1,3 +1,4 @@
+import os.path
 import random
 import string
 from sys import argv
@@ -64,7 +65,16 @@ match argv[1]:
 
         regenerate_secret()
         print("Секрет изменён, всем администраторам придётся входить заново.")
+    case "add-teachers":
+        if not os.path.isfile("teachers.txt"):
+            print("Создайте файл teachers.txt, добавьте туда учителей на отдельные строки")
+
+        with Session.begin() as session:
+            for teacher in open("teachers.txt").readlines():
+                if not teacher: continue
+                session.add(DatabaseTeacher(initials=teacher))
     case default:
         print("""Средства системного администратора
 create-account - создать новый аккаунт администратора
-regenerate-secret - Сгенерировать новый секрет""")
+regenerate-secret - Сгенерировать новый секрет
+add-teachers - Добавить учителей из файла""")

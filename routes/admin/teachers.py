@@ -10,9 +10,9 @@ from models.database import DatabaseTeacher
 from routes.admin import AdminRequired
 from api_tags import ADMIN_ONLY, TEACHERS
 
-teachersRouter = APIRouter(prefix="/teachers")
+teachersRouter = APIRouter(prefix="/teachers", tags=[TEACHERS])
 
-@teachersRouter.get("/", name="Получить список преподавателей", tags=[ADMIN_ONLY, TEACHERS])
+@teachersRouter.get("/", name="Получить список преподавателей")
 async def get_teachers_list(
         _admin: AdminRequired,
         offset: int = 0,
@@ -30,7 +30,7 @@ async def get_teachers_list(
             for db_teacher in teachers
         ]
 
-@teachersRouter.post("/", name="Добавить преподавателя", tags=[ADMIN_ONLY, TEACHERS])
+@teachersRouter.post("/", name="Добавить преподавателя")
 async def add_teacher(
         _admin: AdminRequired,
         teacher: CreateTeacher
@@ -46,8 +46,7 @@ async def add_teacher(
 @teachersRouter.delete(
     "/{teacher_id:int}",
     name="Убрать преподавателя",
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=[ADMIN_ONLY, TEACHERS]
+    status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_teacher(
         _admin: AdminRequired,

@@ -10,9 +10,9 @@ from models.database import DatabaseNews, NewsStatus
 import traceback
 from api_tags import CONTENT, NEWS
 
-newsRouter = APIRouter(prefix="/news")
+newsRouter = APIRouter(prefix="/news", tags=[NEWS])
 
-@newsRouter.get("/", name="Получить список новостей", tags=[CONTENT, NEWS])
+@newsRouter.get("/", name="Получить список новостей")
 async def get_news_list(
         offset: int = 0,
         limit: int = 10
@@ -30,7 +30,7 @@ async def get_news_list(
             for new in news
         ]
 
-@newsRouter.get("/{slug:str}", name="Получить новость", tags=[CONTENT, NEWS])
+@newsRouter.get("/{slug:str}", name="Получить новость")
 async def get_news(slug: str) -> PublicNews:
     with Session.begin() as session:
         try:

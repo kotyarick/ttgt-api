@@ -12,9 +12,9 @@ from models.database import DatabaseNews
 from routes.admin import AdminRequired
 from api_tags import ADMIN_ONLY, NEWS
 
-newsRouter = APIRouter(prefix="/news")
+newsRouter = APIRouter(prefix="/news", tags=[NEWS])
 
-@newsRouter.post("/", name="Создать новость", tags=[ADMIN_ONLY, NEWS])
+@newsRouter.post("/", name="Создать новость")
 async def create_news(
         _admin: AdminRequired,
         news: PostableNews
@@ -44,7 +44,7 @@ async def create_news(
         except IntegrityError:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
-@newsRouter.patch("/{news_id:int}", name="Отредактировать новость", tags=[ADMIN_ONLY, NEWS])
+@newsRouter.patch("/{news_id:int}", name="Отредактировать новость")
 async def edit_news(
         _admin: AdminRequired,
         news: PostableNews,
@@ -80,8 +80,7 @@ async def edit_news(
 @newsRouter.delete(
     "/{news_id:int}",
     status_code=status.HTTP_204_NO_CONTENT,
-    name="Удалить новость",
-    tags=[ADMIN_ONLY, NEWS]
+    name="Удалить новость"
 )
 async def delete_news(
         _admin: AdminRequired,
@@ -95,7 +94,7 @@ async def delete_news(
                 .delete()
         )
 
-@newsRouter.get("/", name="Получить список всех новостей", tags=[ADMIN_ONLY, NEWS])
+@newsRouter.get("/", name="Получить список всех новостей")
 async def get_news_list(
         offset: int = 0,
         limit: int = 10
@@ -116,7 +115,7 @@ async def get_news_list(
             for new in news
         ]
 
-@newsRouter.get("/{slug:str}", name="Получить новость", tags=[ADMIN_ONLY, NEWS])
+@newsRouter.get("/{slug:str}", name="Получить новость")
 async def get_news(slug: str) -> PrivateNews:
     """
     В отличии от GET /content/news, этот endpoint даст неопубликованную новость
