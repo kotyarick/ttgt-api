@@ -17,17 +17,17 @@ def admin_login(
 #  или даёт 401 при ошибке
 AdminRequired: TypeAlias = Annotated["Admin", Depends(admin_login)]
 
-adminRouter = APIRouter(prefix="/admin", tags=[ADMIN_ONLY])
+admin_router = APIRouter(prefix="/admin", tags=[ADMIN_ONLY])
 
-@adminRouter.get("/super-secret")
+@admin_router.get("/super-secret")
 async def get_super_secret_data(
         admin: AdminRequired
 ) -> dict[str, str]:
     print(admin)
     return { "data": "У тебя получилось" }
 
-from .news import newsRouter
-from .teachers import teachersRouter
+from .posts import posts_router
+from .teachers import teachers_router
 
-adminRouter.include_router(newsRouter)
-adminRouter.include_router(teachersRouter)
+admin_router.include_router(posts_router)
+admin_router.include_router(teachers_router)

@@ -14,7 +14,7 @@ from models.api import LoginRequest, LoginResult, Admin
 from models.database import DatabaseAdmin
 from api_tags import ADMIN_ONLY
 
-authRouter = APIRouter(prefix="/auth")
+auth_router = APIRouter(prefix="/auth")
 
 secret = open("secret", "rb").read()
 hasher = PasswordHasher()
@@ -64,7 +64,7 @@ def extract_jwt(jwt: str) -> Admin:
         print("Не удалось достать JWT:", exception)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-@authRouter.post("/login", name="Войти в систему", tags=[ADMIN_ONLY])
+@auth_router.post("/login", name="Войти в систему", tags=[ADMIN_ONLY])
 async def login(request: LoginRequest) -> LoginResult:
     """ Получить токен
     

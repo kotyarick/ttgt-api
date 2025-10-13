@@ -5,17 +5,17 @@ import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.database import DatabaseNews, DatabaseTeacher, NewsType, NewsStatus, DatabaseAdmin, DatabaseFile
+from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile
 from utils import smart_crop, crop_first_paragraph
 
-IN = TypeVar('IN', bound='IncompleteNews')
-PN = TypeVar('PN', bound='PublicNews')
-PR = TypeVar('PR', bound='PrivateNews')
+IN = TypeVar('IN', bound='IncompletePost')
+PN = TypeVar('PN', bound='PublicPost')
+PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
-class IncompleteNews(BaseModel):
+class IncompletePost(BaseModel):
     """
-    Неполная новость техникума, отправляется в списке.
+    Неполный пост техникума, отправляется в списке.
     """
     id: int
 
@@ -26,7 +26,7 @@ class IncompleteNews(BaseModel):
 
     title: str
     """
-    Заголовок новости.
+    Заголовок поста.
     """
 
     text: str
@@ -43,31 +43,28 @@ class IncompleteNews(BaseModel):
 
     images: List[str]
 
+    category: int
+
     @classmethod
-    def from_database(cls: Type[IN], data: DatabaseNews) -> IN:
-        return IncompleteNews(
+    def from_database(cls: Type[IN], data: DatabasePost) -> IN:
+        return IncompletePost(
             id = data.id,
             slug = data.slug,
             title = data.title,
             text = crop_first_paragraph(data.body),
             publish_date= round(float(data.publish_date.timestamp())),
             type=data.type,
-            images=data.images.split("\n")
+            images=data.images.split("\n"),
+            category=data.category
         )
 
 
-class PublicNews(BaseModel):
+class PublicPost(BaseModel):
     """
-    Полная новость техникума
+    Полный пост техникума
     """
 
     id: int
-
-    # image_amount: int
-    """
-    Количество картинок.
-    Получить картинку: GET /news/{slug}/{index}.png
-    """
 
     slug: str
     """
@@ -76,12 +73,12 @@ class PublicNews(BaseModel):
 
     title: str
     """
-    Заголовок новости.
+    Заголовок поста.
     """
 
     text: str
     """
-    Текст новости.
+    Текст поста.
     """
 
     publish_date: int
@@ -93,10 +90,11 @@ class PublicNews(BaseModel):
     author: str
 
     images: List[str]
+    category: int
 
     @classmethod
-    def from_database(cls: Type[PN], data: DatabaseNews) -> PN:
-        return PublicNews(
+    def from_database(cls: Type[PN], data: DatabasePost) -> PN:
+        return PublicPost(
             id = data.id,
             images = data.images.split("\n"),
             slug = data.slug,
@@ -104,20 +102,22 @@ class PublicNews(BaseModel):
             text = data.body,
             publish_date= data.publish_date.timestamp(),
             type=data.type,
-            author=data.author
+            author=data.author,
+            category=data.category
         )
 
-class PostableNews(BaseModel):
-    """ Новость, которую можно опубликовать """
+class PostablePost(BaseModel):
+    """ Пост, который можно запостить """
 
     slug: str
     title: str = ""
     body: str = ""
     publish_date: int
     author: str = ""
-    type: NewsType = NewsType.News
-    status: NewsStatus = NewsStatus.Draft
+    type: int
+    status: PostStatus = PostStatus.Draft
     images: List[str]
+    category: int
 
     def check(self):
         try:
@@ -125,7 +125,8 @@ class PostableNews(BaseModel):
             assert self.title != "", "Поле slug обязательно"
             assert self.body != "", "Поле title обязательно"
             assert self.author != "", "Поле body обязательно"
-            assert 0 <= self.type.value <= 3, "Тип поста должен быть в диапазоне 0-3"
+            assert self.type >= 0, "Тип поста должен быть положительным"
+            assert self.category >= 0, "Категория поста должен быть положительным"
             assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
 
             for file in self.images:
@@ -136,8 +137,8 @@ class PostableNews(BaseModel):
                 detail=str(error)
             )
 
-class PrivateNews(BaseModel):
-    """ Новость + приватные данные """
+class PrivatePost(BaseModel):
+    """ Пост + приватные данные """
     id: int
     slug: str
     title: str
@@ -145,12 +146,13 @@ class PrivateNews(BaseModel):
     publish_date: int
     images: List[str]
     author: str
-    type: NewsType
-    status: NewsStatus
+    type: int
+    status: PostStatus
+    category: int
 
     @classmethod
-    def from_database(cls: Type[PR], data: DatabaseNews) -> PR:
-        return PrivateNews(
+    def from_database(cls: Type[PR], data: DatabasePost) -> PR:
+        return PrivatePost(
             id = data.id,
             slug = data.slug,
             title = data.title,
@@ -159,7 +161,8 @@ class PrivateNews(BaseModel):
             images = data.images.split("\n"),
             author = data.author,
             type = data.type,
-            status = data.status
+            status = data.status,
+            category=data.category
         )
 
 class Admin(BaseModel):
@@ -216,14 +219,14 @@ class CreateTeacher(BaseModel):
 
 class Comment(BaseModel):
     """
-    Комментарий к новости
+    Комментарий к посту
     """
 
     id: int
 
-    news_id: int
+    post_id: int
     """
-    ID Новости, к которой написан комментарий
+    ID Поста, к которой написан комментарий
     """
 
     sender_name: str

@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 
 from api_tags import CONTENT
-from .news import newsRouter
+from .posts import posts_router
 
-contentRouter = APIRouter(
+content_router = APIRouter(
     prefix="/content",
     tags=[CONTENT]
 )
 
-contentRouter.include_router(newsRouter)
+content_router.include_router(posts_router)

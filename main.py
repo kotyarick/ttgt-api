@@ -2,7 +2,7 @@ import os
 
 from fastapi.responses import Response, RedirectResponse
 
-from routes.files import filesRouter
+from routes.files import files_router
 from utils import regenerate_secret
 
 if not os.path.isfile("secret"):
@@ -14,9 +14,9 @@ if not os.path.isdir("database_files"):
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes.admin import adminRouter
-from routes.auth import authRouter
-from routes.content import contentRouter
+from routes.admin import admin_router
+from routes.auth import auth_router
+from routes.content import content_router
 
 
 
@@ -64,7 +64,7 @@ async def exception_handler(
         }
     )
 
-app.include_router(contentRouter)
-app.include_router(authRouter)
-app.include_router(adminRouter)
-app.include_router(filesRouter)
+app.include_router(content_router)
+app.include_router(auth_router)
+app.include_router(admin_router)
+app.include_router(files_router)

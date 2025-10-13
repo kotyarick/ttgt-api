@@ -15,12 +15,12 @@ from models.api import File
 from models.database import DatabaseFile
 from routes.admin import AdminRequired
 
-filesRouter = APIRouter(
+files_router = APIRouter(
     prefix="/files",
     tags=[FILES]
 )
 
-@filesRouter.post(
+@files_router.post(
     "/", tags=[ADMIN_ONLY],
     name="Добавить файл"
 )
@@ -67,7 +67,7 @@ async def upload(
 
     return { "id": file_hash }
 
-@filesRouter.get(
+@files_router.get(
     "/{file_id:str}",
     name="Скачать файл"
 )
@@ -92,9 +92,12 @@ async def get_file(
 
         file = File.from_database(db_file)
 
+    mime = magic.Magic(mime=True).from_buffer(open(f"database_files/{file_id}", "rb").read())
+
     return FileResponse(
         f"database_files/{file_id}",
         headers={
-            'Content-Disposition': f'attachment; filename="{file.name}'
+            'Content-Disposition': f'attachment; filename="{file.name}',
+            "content-type": mime
         }
     )
