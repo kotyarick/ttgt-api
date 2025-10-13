@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from unicodedata import category
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
@@ -33,7 +34,8 @@ async def create_post(
                 images = "\n".join(post.images),
                 author = post.author,
                 type = post.type,
-                status = post.status
+                status = post.status,
+                category = post.category
             )
         session.add(post)
         session.flush()
