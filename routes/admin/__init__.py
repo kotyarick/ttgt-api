@@ -8,7 +8,7 @@ from routes.auth import extract_jwt
 
 
 def admin_login(
-        x_authorization: Annotated[str | None, Header()] = None,
+        x_authorization: Annotated[str, Header()],
 ) -> Admin:
     return extract_jwt(x_authorization)
 
