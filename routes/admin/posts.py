@@ -35,12 +35,9 @@ async def create_post(
                 type = post.type,
                 status = post.status
             )
-        try:
-            session.add(post)
-            session.flush()
-            return PrivatePost.from_database(post)
-        except IntegrityError:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT)
+        session.add(post)
+        session.flush()
+        return PrivatePost.from_database(post)
 
 @posts_router.patch("/{post_id:int}", name="Отредактировать пост")
 async def edit_post(
