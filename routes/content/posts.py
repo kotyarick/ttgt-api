@@ -14,6 +14,7 @@ posts_router = APIRouter(prefix="/posts", tags=[POSTS, CONTENT])
 
 @posts_router.get("/", name="Получить список постов")
 async def get_posts_list(
+        category: int,
         offset: int = 0,
         limit: int = 10
 ) -> List[IncompletePost]:
@@ -22,7 +23,10 @@ async def get_posts_list(
     with Session.begin() as session:
         # noinspection PyTypeChecker
         posts: List[DatabasePost] = session.scalars(
-            select(DatabasePost).where(DatabasePost.status == PostStatus.Published).offset(offset).limit(limit)
+            select(DatabasePost).where(
+                DatabasePost.status == PostStatus.Published
+                and DatabasePost.category == category
+            ).offset(offset).limit(limit)
         ).all()
 
         return [
