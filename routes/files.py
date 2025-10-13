@@ -2,7 +2,6 @@ import os.path
 from hashlib import sha256
 from io import BytesIO
 
-import ffmpeg
 import magic
 from PIL import Image
 from fastapi import APIRouter, Request, HTTPException
