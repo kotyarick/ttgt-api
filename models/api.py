@@ -1,3 +1,4 @@
+import os.path
 from typing import Type, TypeVar, Optional, List
 
 import fastapi
@@ -116,6 +117,7 @@ class PostableNews(BaseModel):
     author: str = ""
     type: NewsType = NewsType.News
     status: NewsStatus = NewsStatus.Draft
+    images: List[str]
 
     def check(self):
         try:
@@ -125,6 +127,9 @@ class PostableNews(BaseModel):
             assert self.author != "", "Поле body обязательно"
             assert 0 <= self.type.value <= 3, "Тип поста должен быть в диапазоне 0-3"
             assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
+
+            for file in self.images:
+                assert os.path.isfile(f"database_files/{file}"), f"Файла с ID {file} нет"
         except AssertionError as error:
             raise HTTPException(
                 status_code=fastapi.status.HTTP_400_BAD_REQUEST,

@@ -10,9 +10,9 @@ from database import Session
 from models.api import PrivateNews, PostableNews
 from models.database import DatabaseNews
 from routes.admin import AdminRequired
-from api_tags import ADMIN_ONLY, NEWS
+from api_tags import NEWS, ADMIN_ONLY
 
-newsRouter = APIRouter(prefix="/news", tags=[NEWS])
+newsRouter = APIRouter(prefix="/news", tags=[NEWS, ADMIN_ONLY])
 
 @newsRouter.post("/", name="Создать новость")
 async def create_news(
@@ -31,8 +31,7 @@ async def create_news(
                 title = news.title,
                 body = news.body,
                 publish_date = datetime.fromtimestamp(news.publish_date),
-                #TODO: кол-во картинок
-                image_amount = 0,
+                images = "\n".join(news.images),
                 author = news.author,
                 type = news.type,
                 status = news.status
