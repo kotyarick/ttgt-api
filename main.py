@@ -1,6 +1,6 @@
 import os
 
-from fastapi.responses import Response
+from fastapi.responses import Response, RedirectResponse
 
 from routes.files import filesRouter
 from utils import regenerate_secret
@@ -11,7 +11,7 @@ if not os.path.isfile("secret"):
 if not os.path.isdir("database_files"):
     os.mkdir("database_files")
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.admin import adminRouter
@@ -42,6 +42,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/", name="Основная страница")
+async def index():
+    """
+    Редирект на /docs
+    """
+    return RedirectResponse("/docs")
 
 @app.exception_handler(Exception)
 async def exception_handler(

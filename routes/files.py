@@ -20,12 +20,18 @@ filesRouter = APIRouter(
     tags=[FILES]
 )
 
-@filesRouter.post("/", tags=[ADMIN_ONLY])
+@filesRouter.post(
+    "/", tags=[ADMIN_ONLY],
+    name="Добавить файл"
+)
 async def upload(
         request: Request,
         _admin: AdminRequired,
         filename: str
 ):
+    """
+    Выложить файл. На выходе даёт ID. ID файла - это sha256
+    """
     body = await request.body()
     #with open("/tmp/file", "wb") as f:
     #    f.write(body)
@@ -61,10 +67,16 @@ async def upload(
 
     return { "id": file_hash }
 
-@filesRouter.get("/{file_id:str}")
+@filesRouter.get(
+    "/{file_id:str}",
+    name="Скачать файл"
+)
 async def get_file(
         file_id: str
 ):
+    """
+    После ID файла можно указать расширение
+    """
     file_id = file_id.split(".", 1)[0]
     if not os.path.isfile(f"database_files/{file_id}"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
