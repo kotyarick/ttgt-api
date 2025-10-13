@@ -95,6 +95,7 @@ async def delete_news(
 
 @newsRouter.get("/", name="Получить список всех новостей")
 async def get_news_list(
+        _admin: AdminRequired,
         offset: int = 0,
         limit: int = 10
 ) -> List[PrivateNews]:
@@ -115,7 +116,10 @@ async def get_news_list(
         ]
 
 @newsRouter.get("/{slug:str}", name="Получить новость")
-async def get_news(slug: str) -> PrivateNews:
+async def get_news(
+        _admin: AdminRequired,
+        slug: str
+) -> PrivateNews:
     """
     В отличии от GET /content/news, этот endpoint даст неопубликованную новость
     """

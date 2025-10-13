@@ -8,6 +8,9 @@ from utils import regenerate_secret
 if not os.path.isfile("secret"):
     regenerate_secret()
 
+if not os.path.isdir("database_files"):
+    os.mkdir("database_files")
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
