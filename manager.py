@@ -72,7 +72,7 @@ match argv[1]:
         with Session.begin() as session:
             for teacher in open("teachers.txt").readlines():
                 if not teacher: continue
-                session.add(DatabaseTeacher(initials=teacher))
+                session.add(DatabaseTeacher(initials=teacher.strip()))
     case default:
         print("""Средства системного администратора
 create-account - создать новый аккаунт администратора

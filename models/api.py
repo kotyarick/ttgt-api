@@ -4,7 +4,7 @@ import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.database import DatabaseNews, DatabaseTeacher, NewsType, NewsStatus, DatabaseAdmin
+from models.database import DatabaseNews, DatabaseTeacher, NewsType, NewsStatus, DatabaseAdmin, DatabaseFile
 from utils import smart_crop, crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompleteNews')
@@ -173,16 +173,13 @@ class Admin(BaseModel):
     middle_name: str = ""
     """ Отчество """
 
-    password_hash: str
-
     @classmethod
     def from_database(cls: Type[A], data: DatabaseAdmin) -> A:
         return Admin(
             id=data.id,
             first_name=data.first_name,
             second_name=data.second_name,
-            middle_name=data.middle_name,
-            password_hash=data.password_hash
+            middle_name=data.middle_name
         )
 
 class Teacher(BaseModel):
@@ -254,3 +251,15 @@ class LoginRequest(BaseModel):
 class LoginResult(BaseModel):
     token: str
     admin: Admin
+
+
+class File(BaseModel):
+    id: str
+    name: str
+
+    @classmethod
+    def from_database(cls, data: DatabaseFile):
+        return File(
+            id = data.id,
+            name = data.name
+        )

@@ -4,3 +4,4 @@ database.sqlite
 .idea
 __pycache__
 */__pycache__
+database_files/*

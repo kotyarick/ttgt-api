@@ -122,3 +122,10 @@ class DatabaseAppeal(Base):
     phone = Column(String(12), nullable=False)
     message = Column(String(512), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class DatabaseFile(Base):
+    __tablename__ = "files"
+
+    id: Mapped[str] = mapped_column(primary_key=True)
+    name: Mapped[str] = Column(String(), nullable=False)

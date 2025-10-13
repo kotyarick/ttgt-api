@@ -1,4 +1,8 @@
 import os
+
+from fastapi.responses import Response
+
+from routes.files import filesRouter
 from utils import regenerate_secret
 
 if not os.path.isfile("secret"):
@@ -41,15 +45,16 @@ async def exception_handler(
     request: Request, 
     exc: Exception
 ):
-    print(request.path, "Ошибка:", exc)
-    raise HTTPException(
+    print(request.url, "Ошибка:", exc)
+    return Response(
         status_code=500,
         headers={
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": ""
+            "Access-Control-Allow-Methods": "*"
         }
     )
 
 app.include_router(contentRouter)
 app.include_router(authRouter)
 app.include_router(adminRouter)
+app.include_router(filesRouter)
