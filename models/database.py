@@ -45,7 +45,6 @@ class DatabasePost(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    slug = Column(String(15), unique=True, nullable=False)
     title: Mapped[str]
     body: Mapped[str]
     publish_date = Column(DateTime(timezone=True), server_default=func.now())

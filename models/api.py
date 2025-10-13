@@ -19,11 +19,6 @@ class IncompletePost(BaseModel):
     """
     id: int
 
-    slug: str
-    """
-    User-friendly ID.
-    """
-
     title: str
     """
     Заголовок поста.
@@ -49,7 +44,6 @@ class IncompletePost(BaseModel):
     def from_database(cls: Type[IN], data: DatabasePost) -> IN:
         return IncompletePost(
             id = data.id,
-            slug = data.slug,
             title = data.title,
             text = crop_first_paragraph(data.body),
             publish_date= round(float(data.publish_date.timestamp())),
@@ -65,11 +59,6 @@ class PublicPost(BaseModel):
     """
 
     id: int
-
-    slug: str
-    """
-    User-friendly ID.
-    """
 
     title: str
     """
@@ -97,7 +86,6 @@ class PublicPost(BaseModel):
         return PublicPost(
             id = data.id,
             images = data.images.split("\n"),
-            slug = data.slug,
             title = data.title,
             text = data.body,
             publish_date= data.publish_date.timestamp(),
@@ -109,7 +97,6 @@ class PublicPost(BaseModel):
 class PostablePost(BaseModel):
     """ Пост, который можно запостить """
 
-    slug: str
     title: str = ""
     body: str = ""
     publish_date: int
@@ -121,8 +108,6 @@ class PostablePost(BaseModel):
 
     def check(self):
         try:
-            assert 0 < len(self.slug) <= 15, "slug должен быть не пустым и не длиннее 15 символов"
-            assert self.title != "", "Поле slug обязательно"
             assert self.body != "", "Поле title обязательно"
             assert self.author != "", "Поле body обязательно"
             assert self.type >= 0, "Тип поста должен быть положительным"
@@ -140,7 +125,6 @@ class PostablePost(BaseModel):
 class PrivatePost(BaseModel):
     """ Пост + приватные данные """
     id: int
-    slug: str
     title: str
     body: str
     publish_date: int
@@ -154,7 +138,6 @@ class PrivatePost(BaseModel):
     def from_database(cls: Type[PR], data: DatabasePost) -> PR:
         return PrivatePost(
             id = data.id,
-            slug = data.slug,
             title = data.title,
             body = data.body,
             publish_date = round(float(data.publish_date.timestamp())),

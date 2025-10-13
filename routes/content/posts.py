@@ -34,13 +34,13 @@ async def get_posts_list(
             for post in posts
         ]
 
-@posts_router.get("/{slug:str}", name="Получить пост")
-async def get_post(slug: str) -> PublicPost:
+@posts_router.get("/{post_id:int}", name="Получить пост")
+async def get_post(post_id: int) -> PublicPost:
     with Session.begin() as session:
         try:
             # noinspection PyTypeChecker
             post = session.scalar(
-                select(DatabasePost).where(DatabasePost.status == PostStatus.Published and DatabasePost.slug == slug)
+                select(DatabasePost).where(DatabasePost.status == PostStatus.Published and DatabasePost.id == post_id)
             )
 
             return PublicPost.from_database(post)

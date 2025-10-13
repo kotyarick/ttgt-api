@@ -27,7 +27,6 @@ async def create_post(
 
     with Session.begin() as session:
         post = DatabasePost(
-                slug = post.slug,
                 title = post.title,
                 body = post.body,
                 publish_date = datetime.fromtimestamp(post.publish_date),
@@ -116,10 +115,10 @@ async def delete_post(
                 .delete()
         )
 
-@posts_router.get("/{slug:str}", name="Получить пост")
+@posts_router.get("/{post_id:int}", name="Получить пост")
 async def get_post(
         _admin: AdminRequired,
-        slug: str
+        post_id: int
 ) -> PrivatePost:
     """
     В отличие от GET /content/posts, этот endpoint даст неопубликованный пост
@@ -128,7 +127,7 @@ async def get_post(
         try:
             # noinspection PyTypeChecker
             post = session.scalar(
-                select(DatabasePost).where(DatabasePost.slug == slug)
+                select(DatabasePost).where(DatabasePost.id == post_id)
             )
 
             print(post.id)
