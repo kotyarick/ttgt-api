@@ -48,7 +48,7 @@ class IncompletePost(BaseModel):
             text = crop_first_paragraph(data.body),
             publish_date= round(float(data.publish_date.timestamp())),
             type=data.type,
-            images=data.images.split("\n"),
+            images=list(filter(bool, data.images.split("\n"))),
             category=data.category
         )
 
@@ -85,7 +85,7 @@ class PublicPost(BaseModel):
     def from_database(cls: Type[PN], data: DatabasePost) -> PN:
         return PublicPost(
             id = data.id,
-            images = data.images.split("\n"),
+            images = list(filter(bool, data.images.split("\n"))),
             title = data.title,
             text = data.body,
             publish_date= data.publish_date.timestamp(),
@@ -141,7 +141,7 @@ class PrivatePost(BaseModel):
             title = data.title,
             body = data.body,
             publish_date = round(float(data.publish_date.timestamp())),
-            images = data.images.split("\n"),
+            images = list(filter(bool, data.images.split("\n"))),
             author = data.author,
             type = data.type,
             status = data.status,
