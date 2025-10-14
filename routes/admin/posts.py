@@ -66,7 +66,7 @@ async def edit_post(
         (
             session
                 .query(DatabasePost)
-                .filter(DatabasePost.id == post_id)
+                .where(DatabasePost.id == post_id)
                 .update(dump)
         )
 
