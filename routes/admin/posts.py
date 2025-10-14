@@ -61,6 +61,7 @@ async def edit_post(
 
         dump = post.model_dump()
         dump["publish_date"] = datetime.fromtimestamp(dump["publish_date"])
+        dump["images"] = "\n".join(post.images)
 
         (
             session
