@@ -70,7 +70,7 @@ async def edit_post(
                 .update(dump)
         )
 
-
+        session.flush()
         return PrivatePost.from_database(session.scalar(
             select(DatabasePost).where(DatabasePost.id == post_id)
         ))
