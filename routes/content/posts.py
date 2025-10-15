@@ -43,7 +43,7 @@ async def get_post(post_id: int) -> PublicPost:
                 select(DatabasePost).where(DatabasePost.id == post_id)
             )
 
-            assert post.status == 1
+            assert post.status == PostStatus.Published
 
             return PublicPost.from_database(post)
         except:
