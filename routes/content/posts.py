@@ -40,8 +40,10 @@ async def get_post(post_id: int) -> PublicPost:
         try:
             # noinspection PyTypeChecker
             post = session.scalar(
-                select(DatabasePost).where(DatabasePost.id == post_id and DatabasePost.status == PostStatus.Published)
+                select(DatabasePost).where(DatabasePost.id == post_id)
             )
+
+            assert post.status == 1
 
             return PublicPost.from_database(post)
         except:
