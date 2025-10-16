@@ -83,7 +83,7 @@ async def edit_vacancy(
             session
             .query(DatabaseVacancy)
             .where(DatabaseVacancy.id == vacancy_id)
-            .update(**dump)
+            .update(dump)
         )
 
         session.flush()
