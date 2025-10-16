@@ -1,12 +1,12 @@
 import os
-
-from fastapi.responses import Response, RedirectResponse
-
-from routes.files import files_router
 from utils import regenerate_secret
 
 if not os.path.isfile("secret"):
     regenerate_secret()
+
+from fastapi.responses import Response, RedirectResponse
+
+from routes.files import files_router
 
 if not os.path.isdir("database_files"):
     os.mkdir("database_files")
