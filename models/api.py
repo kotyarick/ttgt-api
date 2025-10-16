@@ -3,8 +3,11 @@ from typing import Type, TypeVar, List
 
 import fastapi
 from fastapi import HTTPException
+from magic import Magic
 from pydantic import BaseModel
+from sqlalchemy import select
 
+from ..database import Session
 from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
 from utils import crop_first_paragraph
 
@@ -53,6 +56,23 @@ class IncompletePost(BaseModel):
             category=data.category
         )
 
+class File(BaseModel):
+    id: str
+    name: str
+    mime: str
+
+    @classmethod
+    def get_file(cls, id: str):
+        with Session.begin() as session:
+            file = session.scalar(
+                select(DatabaseFile).where(DatabaseFile.id == id)
+            )
+
+            return File(
+                id = id,
+                name = file.name,
+                mime = Magic(True).from_file(f"database_files/{id}")
+            )
 
 class PublicPost(BaseModel):
     """
@@ -79,14 +99,18 @@ class PublicPost(BaseModel):
     type: int
     author: str
 
-    images: List[str]
+    images: List[File]
     category: int
 
     @classmethod
     def from_database(cls: Type[PN], data: DatabasePost) -> PN:
         return PublicPost(
             id=data.id,
-            images=list(filter(bool, data.images.split("\n"))),
+            images=[
+                File.get_file(id) for id in
+                data.images.split("\n")
+                if id
+            ],
             title=data.title,
             text=data.body,
             publish_date=data.publish_date.timestamp(),
