@@ -271,7 +271,7 @@ class Vacancy(CreateVacancy):
             department=data.department,
             salary=data.salary,
             is_active=data.is_active,
-            created_at=data.created_at
+            created_at=round(float(data.created_at.timestamp()))
         )
 
 
