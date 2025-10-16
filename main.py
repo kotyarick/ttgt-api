@@ -1,4 +1,5 @@
 import os
+
 from utils import regenerate_secret
 
 if not os.path.isfile("secret"):
@@ -18,14 +19,12 @@ from routes.admin import admin_router
 from routes.auth import auth_router
 from routes.content import content_router
 
-
-
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        #FIXME: Перед отправкой на прод необходимо
+        # FIXME: Перед отправкой на прод необходимо
         # раскомментировать эти ссылки,
         # чтобы можно было делать запросы
         # только с сайта ТТЖТ
@@ -43,6 +42,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/", name="Основная страница")
 async def index():
     """
@@ -50,10 +50,11 @@ async def index():
     """
     return RedirectResponse("/docs")
 
+
 @app.exception_handler(Exception)
 async def exception_handler(
-    request: Request, 
-    exc: Exception
+        request: Request,
+        exc: Exception
 ):
     print(request.url, "Ошибка:", exc)
     return Response(
@@ -63,6 +64,7 @@ async def exception_handler(
             "Access-Control-Allow-Methods": "*"
         }
     )
+
 
 app.include_router(content_router)
 app.include_router(auth_router)

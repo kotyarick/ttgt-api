@@ -1,17 +1,18 @@
 import os.path
-from typing import Type, TypeVar, Optional, List
+from typing import Type, TypeVar, List
 
 import fastapi
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile
-from utils import smart_crop, crop_first_paragraph
+from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
+from utils import crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompletePost')
 PN = TypeVar('PN', bound='PublicPost')
 PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
+
 
 class IncompletePost(BaseModel):
     """
@@ -43,10 +44,10 @@ class IncompletePost(BaseModel):
     @classmethod
     def from_database(cls: Type[IN], data: DatabasePost) -> IN:
         return IncompletePost(
-            id = data.id,
-            title = data.title,
-            text = crop_first_paragraph(data.body),
-            publish_date= round(float(data.publish_date.timestamp())),
+            id=data.id,
+            title=data.title,
+            text=crop_first_paragraph(data.body),
+            publish_date=round(float(data.publish_date.timestamp())),
             type=data.type,
             images=list(filter(bool, data.images.split("\n"))),
             category=data.category
@@ -84,15 +85,16 @@ class PublicPost(BaseModel):
     @classmethod
     def from_database(cls: Type[PN], data: DatabasePost) -> PN:
         return PublicPost(
-            id = data.id,
-            images = list(filter(bool, data.images.split("\n"))),
-            title = data.title,
-            text = data.body,
-            publish_date= data.publish_date.timestamp(),
+            id=data.id,
+            images=list(filter(bool, data.images.split("\n"))),
+            title=data.title,
+            text=data.body,
+            publish_date=data.publish_date.timestamp(),
             type=data.type,
             author=data.author,
             category=data.category
         )
+
 
 class PostablePost(BaseModel):
     """ Пост, который можно запостить """
@@ -122,6 +124,7 @@ class PostablePost(BaseModel):
                 detail=str(error)
             )
 
+
 class PrivatePost(BaseModel):
     """ Пост + приватные данные """
     id: int
@@ -137,16 +140,17 @@ class PrivatePost(BaseModel):
     @classmethod
     def from_database(cls: Type[PR], data: DatabasePost) -> PR:
         return PrivatePost(
-            id = data.id,
-            title = data.title,
-            body = data.body,
-            publish_date = round(float(data.publish_date.timestamp())),
-            images = list(filter(bool, data.images.split("\n"))),
-            author = data.author,
-            type = data.type,
-            status = data.status,
+            id=data.id,
+            title=data.title,
+            body=data.body,
+            publish_date=round(float(data.publish_date.timestamp())),
+            images=list(filter(bool, data.images.split("\n"))),
+            author=data.author,
+            type=data.type,
+            status=data.status,
             category=data.category
         )
+
 
 class Admin(BaseModel):
     """
@@ -173,6 +177,7 @@ class Admin(BaseModel):
             middle_name=data.middle_name
         )
 
+
 class Teacher(BaseModel):
     """
     Преподаватель.
@@ -190,6 +195,7 @@ class Teacher(BaseModel):
             initials=data.initials
         )
 
+
 class CreateTeacher(BaseModel):
     first_name: str
     """ Имя """
@@ -199,6 +205,7 @@ class CreateTeacher(BaseModel):
 
     middle_name: str = ""
     """ Отчество """
+
 
 class Comment(BaseModel):
     """
@@ -223,7 +230,6 @@ class Comment(BaseModel):
     """
 
 
-
 class Appeal(BaseModel):
     """
     Апелляция
@@ -235,13 +241,38 @@ class Appeal(BaseModel):
     phone: str
     message: str
 
+
 class LoginRequest(BaseModel):
     second_name: str
     password: str
 
+
 class LoginResult(BaseModel):
     token: str
     admin: Admin
+
+
+class CreateVacancy(BaseModel):
+    title: str
+    department: str
+    salary: str
+    is_active: bool
+    created_at: int
+
+
+class Vacancy(CreateVacancy):
+    id: int
+
+    @classmethod
+    def from_database(cls, data: DatabaseVacancy):
+        return Vacancy(
+            id=data.id,
+            title=data.title,
+            department=data.department,
+            salary=data.salary,
+            is_active=data.is_active,
+            created_at=data.created_at
+        )
 
 
 class File(BaseModel):
@@ -251,6 +282,6 @@ class File(BaseModel):
     @classmethod
     def from_database(cls, data: DatabaseFile):
         return File(
-            id = data.id,
-            name = data.name
+            id=data.id,
+            name=data.name
         )

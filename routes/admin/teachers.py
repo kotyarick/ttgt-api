@@ -1,20 +1,20 @@
 from typing import List
 
 from fastapi import APIRouter
-from sqlalchemy import select
 from fastapi import status
+from sqlalchemy import select
 
+from api_tags import TEACHERS
 from database import Session
 from models.api import Teacher, CreateTeacher
 from models.database import DatabaseTeacher
 from routes.admin import AdminRequired
-from api_tags import ADMIN_ONLY, TEACHERS
 
 teachers_router = APIRouter(prefix="/teachers", tags=[TEACHERS])
 
+
 @teachers_router.get("/", name="Получить список преподавателей")
 async def get_teachers_list(
-        _admin: AdminRequired,
         offset: int = 0,
         limit: int = 20
 ) -> List[Teacher]:
@@ -30,9 +30,9 @@ async def get_teachers_list(
             for db_teacher in teachers
         ]
 
+
 @teachers_router.post("/", name="Добавить преподавателя")
 async def add_teacher(
-        _admin: AdminRequired,
         teacher: CreateTeacher
 ) -> Teacher:
     with Session.begin() as session:
@@ -43,15 +43,14 @@ async def add_teacher(
         session.flush()
         return Teacher.from_database(db_teacher)
 
+
 @teachers_router.delete(
     "/{teacher_id:int}",
     name="Убрать преподавателя",
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_teacher(
-        _admin: AdminRequired,
         teacher_id: int
 ):
     with Session.begin() as session:
         session.query(DatabaseTeacher).filter(DatabaseTeacher.id == teacher_id).delete()
-

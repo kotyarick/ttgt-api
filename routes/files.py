@@ -6,8 +6,8 @@ import magic
 from PIL import Image
 from fastapi import APIRouter, Request, HTTPException
 from fastapi import status
-from sqlalchemy import select
 from fastapi.responses import FileResponse
+from sqlalchemy import select
 
 from api_tags import FILES, ADMIN_ONLY
 from database import Session
@@ -19,6 +19,7 @@ files_router = APIRouter(
     prefix="/files",
     tags=[FILES]
 )
+
 
 @files_router.post(
     "/", tags=[ADMIN_ONLY],
@@ -33,7 +34,7 @@ async def upload(
     Выложить файл. На выходе даёт ID. ID файла - это sha256
     """
     body = await request.body()
-    #with open("/tmp/file", "wb") as f:
+    # with open("/tmp/file", "wb") as f:
     #    f.write(body)
 
     is_image = magic.Magic(mime=True).from_buffer(body).startswith("image/")
@@ -65,7 +66,8 @@ async def upload(
             name=filename
         ))
 
-    return { "id": file_hash }
+    return {"id": file_hash}
+
 
 @files_router.get(
     "/{file_id:str}",
@@ -84,7 +86,7 @@ async def get_file(
     with Session.begin() as session:
         db_file = session.scalar(
             select(DatabaseFile)
-                .where(DatabaseFile.id == file_id)
+            .where(DatabaseFile.id == file_id)
         )
 
         if not db_file:

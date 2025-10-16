@@ -1,19 +1,18 @@
 from datetime import datetime
 from typing import List
-from unicodedata import category
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from fastapi import status
+from sqlalchemy import select
 
+from api_tags import POSTS, ADMIN_ONLY
 from database import Session
 from models.api import PrivatePost, PostablePost
 from models.database import DatabasePost
 from routes.admin import AdminRequired
-from api_tags import POSTS, ADMIN_ONLY
 
 posts_router = APIRouter(prefix="/posts", tags=[POSTS, ADMIN_ONLY])
+
 
 @posts_router.post("/", name="Создать пост")
 async def create_post(
@@ -28,22 +27,22 @@ async def create_post(
 
     with Session.begin() as session:
         post = DatabasePost(
-                title = post.title,
-                body = post.body,
-                publish_date = datetime.fromtimestamp(post.publish_date),
-                images = "\n".join(post.images),
-                author = post.author,
-                type = post.type,
-                status = post.status,
-                category = post.category
-            )
+            title=post.title,
+            body=post.body,
+            publish_date=datetime.fromtimestamp(post.publish_date),
+            images="\n".join(post.images),
+            author=post.author,
+            type=post.type,
+            status=post.status,
+            category=post.category
+        )
         session.add(post)
         session.flush()
         return PrivatePost.from_database(post)
 
+
 @posts_router.patch("/{post_id:int}", name="Отредактировать пост")
 async def edit_post(
-        _admin: AdminRequired,
         post: PostablePost,
         post_id: int
 ) -> PrivatePost:
@@ -51,10 +50,10 @@ async def edit_post(
 
     with Session.begin() as session:
         if (
-            session
-                .scalar(
+                session
+                        .scalar(
                     select(DatabasePost)
-                        .where(DatabasePost.id == post_id)
+                            .where(DatabasePost.id == post_id)
                 )
         ) is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -65,9 +64,9 @@ async def edit_post(
 
         (
             session
-                .query(DatabasePost)
-                .where(DatabasePost.id == post_id)
-                .update(dump)
+            .query(DatabasePost)
+            .where(DatabasePost.id == post_id)
+            .update(dump)
         )
 
         session.flush()
@@ -75,9 +74,9 @@ async def edit_post(
             select(DatabasePost).where(DatabasePost.id == post_id)
         ))
 
+
 @posts_router.get("/", name="Получить список всех постов")
 async def get_post_list(
-        _admin: AdminRequired,
         category: int,
         offset: int = 0,
         limit: int = 10,
@@ -98,26 +97,26 @@ async def get_post_list(
             for post in posts
         ]
 
+
 @posts_router.delete(
     "/{post_id:int}",
     status_code=status.HTTP_204_NO_CONTENT,
     name="Удалить пост"
 )
 async def delete_post(
-        _admin: AdminRequired,
         post_id: int
 ):
     with Session.begin() as session:
         (
             session
-                .query(DatabasePost)
-                .filter(DatabasePost.id == post_id)
-                .delete()
+            .query(DatabasePost)
+            .filter(DatabasePost.id == post_id)
+            .delete()
         )
+
 
 @posts_router.get("/{post_id:int}", name="Получить пост")
 async def get_post(
-        _admin: AdminRequired,
         post_id: int
 ) -> PrivatePost:
     """

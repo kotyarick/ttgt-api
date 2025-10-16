@@ -1,27 +1,9 @@
 import enum
-from typing import Optional, List
+from typing import Optional
 
 from sqlalchemy import String, ForeignKey, Boolean, Column, DateTime, func, Enum
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 from sqlalchemy.orm.attributes import Mapped
-
-
-class _NesType(enum.Enum):
-    """
-    Тип поста
-    """
-
-    Nes = 0
-    """ Ново сть """
-
-    Achievement = 1
-    """ Достижение """
-
-    Education = 2
-    """ Образование """
-
-    Event = 3
-    """ Событие """
 
 
 class PostStatus(enum.Enum):

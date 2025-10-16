@@ -2,7 +2,8 @@ ADMIN_ONLY = "Для администраторов"
 
 POSTS = "Посты"
 TEACHERS = "Преподаватели"
-VACATIONS = "Вакансии"
+VACANCIES = "Вакансии"
+CONTESTS = "Конкурсы"
 
 CONTENT = "Получение контента"
 FILES = "Файлы"

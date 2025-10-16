@@ -12,6 +12,7 @@ from utils import regenerate_secret
 if len(argv) < 2:
     argv.append("")
 
+
 def non_empty(user_input: str) -> bool:
     """
     Для использования в `checked_input`
@@ -20,6 +21,7 @@ def non_empty(user_input: str) -> bool:
     Строка исключительно из пробелов считается пустой.
     """
     return user_input.strip() != ""
+
 
 def checked_input(prompt: str, check) -> str:
     """
@@ -31,6 +33,7 @@ def checked_input(prompt: str, check) -> str:
         user_intput = input(prompt)
         if check(user_intput):
             return user_intput
+
 
 match argv[1]:
     case "create-account":
@@ -50,10 +53,10 @@ match argv[1]:
         with Session.begin() as session:
             session.add(
                 DatabaseTeacher(
-                    first_name = first_name,
-                    second_name = second_name,
-                    middle_name = middle_name,
-                    password_hash = password_hash
+                    first_name=first_name,
+                    second_name=second_name,
+                    middle_name=middle_name,
+                    password_hash=password_hash
                 )
             )
         print("Аккаунт админа добавлен.")

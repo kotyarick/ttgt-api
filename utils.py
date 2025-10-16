@@ -4,6 +4,7 @@ import random
 def crop_first_paragraph(text: str) -> str:
     return text.split("\n", 1)[0]
 
+
 def smart_crop(text: str, max_size: int) -> str:
     """
     Обрезает текст по предложениям.
@@ -20,19 +21,21 @@ def smart_crop(text: str, max_size: int) -> str:
         out += sentence + ". "
 
         size = len(out)
-        if len(split) < index+1:
-            size += len(split[index+1])
+        if len(split) < index + 1:
+            size += len(split[index + 1])
 
         if size >= max_size:
             break
 
     return out
 
+
 def regenerate_secret():
     """ Пересоздаёт секрет и делает все токены не валидными """
 
     with open("secret", "wb") as secret:
         secret.write(random.randbytes(256))
+
 
 def initials(
         first_name: str,
@@ -42,5 +45,5 @@ def initials(
         **_argv
 ) -> str:
     return f"""{second_name} {first_name[0]}. {
-        (middle_name[0] + '.') if middle_name else ''
+    (middle_name[0] + '.') if middle_name else ''
     }"""

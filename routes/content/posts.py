@@ -1,16 +1,17 @@
+import traceback
 from typing import List
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
 from fastapi import status
+from sqlalchemy import select
 
+from api_tags import CONTENT, POSTS
 from database import Session
 from models.api import IncompletePost, PublicPost
 from models.database import DatabasePost, PostStatus
-import traceback
-from api_tags import CONTENT, POSTS
 
 posts_router = APIRouter(prefix="/posts", tags=[POSTS, CONTENT])
+
 
 @posts_router.get("/", name="Получить список постов")
 async def get_posts_list(
@@ -33,6 +34,7 @@ async def get_posts_list(
             IncompletePost.from_database(post)
             for post in posts
         ]
+
 
 @posts_router.get("/{post_id:int}", name="Получить пост")
 async def get_post(post_id: int) -> PublicPost:
