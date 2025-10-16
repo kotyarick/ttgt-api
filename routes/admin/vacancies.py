@@ -77,8 +77,6 @@ async def edit_vacancy(
         ) is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-        dump = vacancy.model_dump()
-
         (
             session
             .query(DatabaseVacancy)
