@@ -38,6 +38,7 @@ async def add_vacancy(
     with Session.begin() as session:
         dump = vacancy.model_dump()
         dump["created_at"] = datetime.fromtimestamp(dump["created_at"])
+
         db_vacancy = DatabaseVacancy(
             **dump
         )
@@ -63,6 +64,9 @@ async def edit_vacancy(
         vacancy: CreateVacancy,
         vacancy_id: int
 ) -> Vacancy:
+    dump = vacancy.model_dump()
+    dump["created_at"] = datetime.fromtimestamp(dump["created_at"])
+
     with Session.begin() as session:
         if (
                 session
@@ -79,7 +83,7 @@ async def edit_vacancy(
             session
             .query(DatabaseVacancy)
             .where(DatabaseVacancy.id == vacancy_id)
-            .update(dump)
+            .update(**dump)
         )
 
         session.flush()
