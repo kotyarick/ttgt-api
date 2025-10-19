@@ -30,7 +30,7 @@ async def create_post(
             title=post.title,
             body=post.body,
             publish_date=datetime.fromtimestamp(post.publish_date),
-            images="\n".join(post.images),
+            images="\n".join(post.files),
             author=post.author,
             type=post.type,
             status=post.status,
@@ -60,7 +60,7 @@ async def edit_post(
 
         dump = post.model_dump()
         dump["publish_date"] = datetime.fromtimestamp(dump["publish_date"])
-        dump["images"] = "\n".join(post.images)
+        dump["images"] = "\n".join(post.files)
 
         (
             session

@@ -17,6 +17,25 @@ PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
 
+class File(BaseModel):
+    id: str
+    name: str
+    mime: str
+
+    @classmethod
+    def get_file(cls, id: str):
+        with Session.begin() as session:
+            file = session.scalar(
+                select(DatabaseFile).where(DatabaseFile.id == id)
+            )
+
+            return File(
+                id = id,
+                name = file.name,
+                mime = Magic(True).from_file(f"database_files/{id}")
+            )
+
+
 class IncompletePost(BaseModel):
     """
     Неполный пост техникума, отправляется в списке.
@@ -40,7 +59,7 @@ class IncompletePost(BaseModel):
 
     type: int
 
-    images: List[str]
+    files: List[File]
 
     category: int
 
@@ -52,27 +71,13 @@ class IncompletePost(BaseModel):
             text=crop_first_paragraph(data.body),
             publish_date=round(float(data.publish_date.timestamp())),
             type=data.type,
-            images=list(filter(bool, data.images.split("\n"))),
+            files=[
+                File.get_file(id) for id in
+                data.images.split("\n")
+                if id
+            ],
             category=data.category
         )
-
-class File(BaseModel):
-    id: str
-    name: str
-    mime: str
-
-    @classmethod
-    def get_file(cls, id: str):
-        with Session.begin() as session:
-            file = session.scalar(
-                select(DatabaseFile).where(DatabaseFile.id == id)
-            )
-
-            return File(
-                id = id,
-                name = file.name,
-                mime = Magic(True).from_file(f"database_files/{id}")
-            )
 
 class PublicPost(BaseModel):
     """
@@ -99,14 +104,14 @@ class PublicPost(BaseModel):
     type: int
     author: str
 
-    images: List[File]
+    files: List[File]
     category: int
 
     @classmethod
     def from_database(cls: Type[PN], data: DatabasePost) -> PN:
         return PublicPost(
             id=data.id,
-            images=[
+            files=[
                 File.get_file(id) for id in
                 data.images.split("\n")
                 if id
@@ -129,7 +134,7 @@ class PostablePost(BaseModel):
     author: str = ""
     type: int
     status: PostStatus = PostStatus.Draft
-    images: List[str]
+    files: List[str]
     category: int
 
     def check(self):
@@ -140,7 +145,7 @@ class PostablePost(BaseModel):
             assert self.category >= 0, "Категория поста должен быть положительным"
             assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
 
-            for file in self.images:
+            for file in self.files:
                 assert os.path.isfile(f"database_files/{file}"), f"Файла с ID {file} нет"
         except AssertionError as error:
             raise HTTPException(
@@ -155,7 +160,7 @@ class PrivatePost(BaseModel):
     title: str
     body: str
     publish_date: int
-    images: List[str]
+    files: List[File]
     author: str
     type: int
     status: PostStatus
@@ -168,7 +173,11 @@ class PrivatePost(BaseModel):
             title=data.title,
             body=data.body,
             publish_date=round(float(data.publish_date.timestamp())),
-            images=list(filter(bool, data.images.split("\n"))),
+            files=[
+                File.get_file(id) for id in
+                data.images.split("\n")
+                if id
+            ],
             author=data.author,
             type=data.type,
             status=data.status,
@@ -299,13 +308,3 @@ class Vacancy(CreateVacancy):
         )
 
 
-class File(BaseModel):
-    id: str
-    name: str
-
-    @classmethod
-    def from_database(cls, data: DatabaseFile):
-        return File(
-            id=data.id,
-            name=data.name
-        )
