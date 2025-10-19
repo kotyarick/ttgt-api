@@ -8,7 +8,6 @@ from api_tags import TEACHERS
 from database import Session
 from models.api import Teacher, CreateTeacher
 from models.database import DatabaseTeacher
-from routes.admin import AdminRequired
 
 teachers_router = APIRouter(prefix="/teachers", tags=[TEACHERS])
 

@@ -7,7 +7,7 @@ from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from ..database import Session
+from database import Session
 from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
 from utils import crop_first_paragraph
 

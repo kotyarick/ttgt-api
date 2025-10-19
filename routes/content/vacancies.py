@@ -1,12 +1,11 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException
-from fastapi import status
+from fastapi import APIRouter
 from sqlalchemy import select
 
 from api_tags import VACANCIES
 from database import Session
-from models.api import Vacancy, CreateVacancy
+from models.api import Vacancy
 from models.database import DatabaseVacancy
 
 vacancies_router = APIRouter(prefix="/vacancies", tags=[VACANCIES])

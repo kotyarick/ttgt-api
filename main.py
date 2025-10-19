@@ -5,6 +5,7 @@ from utils import regenerate_secret
 if not os.path.isfile("secret"):
     regenerate_secret()
 
+
 from fastapi.responses import Response, RedirectResponse
 
 from routes.files import files_router
