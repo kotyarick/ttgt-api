@@ -35,6 +35,13 @@ class File(BaseModel):
                 mime = Magic(True).from_file(f"database_files/{id}")
             )
 
+    @classmethod
+    def from_database(cls, data: DatabaseFile):
+        return File(
+            id=data.id,
+            name=data.name,
+            mime=Magic(True).from_file(f"database_files/{data.id}")
+        )
 
 class IncompletePost(BaseModel):
     """
