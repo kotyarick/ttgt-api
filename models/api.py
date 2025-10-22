@@ -24,16 +24,30 @@ class File(BaseModel):
 
     @classmethod
     def get_file(cls, id: str):
-        with Session.begin() as session:
-            file = session.scalar(
-                select(DatabaseFile).where(DatabaseFile.id == id)
-            )
+        if not id:
+            return None
+        if not os.path.isfile(f"database_files/{id}"):
+            return None
 
+        with Session.begin() as session:
+            try:
+                file = session.scalar(
+                    select(DatabaseFile).where(DatabaseFile.id == id)
+                )
+            except:
+                return None
             return File(
                 id = id,
                 name = file.name,
                 mime = Magic(True).from_file(f"database_files/{id}")
             )
+
+    @classmethod
+    def get_files(cls, ids: List[str]):
+        return list(filter(bool, [
+            File.get_file(id)
+            for id in ids
+        ]))
 
     @classmethod
     def from_database(cls, data: DatabaseFile):
@@ -78,11 +92,7 @@ class IncompletePost(BaseModel):
             text=crop_first_paragraph(data.body),
             publish_date=round(float(data.publish_date.timestamp())),
             type=data.type,
-            files=[
-                File.get_file(id) for id in
-                data.images.split("\n")
-                if id
-            ],
+            files=File.get_files(data.images.split("\n")),
             category=data.category
         )
 
@@ -118,11 +128,7 @@ class PublicPost(BaseModel):
     def from_database(cls: Type[PN], data: DatabasePost) -> PN:
         return PublicPost(
             id=data.id,
-            files=[
-                File.get_file(id) for id in
-                data.images.split("\n")
-                if id
-            ],
+            files=File.get_files(data.images.split("\n")),
             title=data.title,
             text=data.body,
             publish_date=data.publish_date.timestamp(),
@@ -180,11 +186,7 @@ class PrivatePost(BaseModel):
             title=data.title,
             body=data.body,
             publish_date=round(float(data.publish_date.timestamp())),
-            files=[
-                File.get_file(id) for id in
-                data.images.split("\n")
-                if id
-            ],
+            files=File.get_files(data.images.split("\n")),
             author=data.author,
             type=data.type,
             status=data.status,
