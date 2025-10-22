@@ -68,7 +68,7 @@ class IncompletePost(BaseModel):
     Заголовок поста.
     """
 
-    text: str
+    body: str
     """
     Первые несколько предложений.
     """
@@ -89,7 +89,7 @@ class IncompletePost(BaseModel):
         return IncompletePost(
             id=data.id,
             title=data.title,
-            text=crop_first_paragraph(data.body),
+            body=crop_first_paragraph(data.body),
             publish_date=round(float(data.publish_date.timestamp())),
             type=data.type,
             files=File.get_files(data.images.split("\n")),
@@ -108,7 +108,7 @@ class PublicPost(BaseModel):
     Заголовок поста.
     """
 
-    text: str
+    body: str
     """
     Текст поста.
     """
@@ -130,7 +130,7 @@ class PublicPost(BaseModel):
             id=data.id,
             files=File.get_files(data.images.split("\n")),
             title=data.title,
-            text=data.body,
+            body=data.body,
             publish_date=data.publish_date.timestamp(),
             type=data.type,
             author=data.author,
