@@ -1,5 +1,5 @@
 import os.path
-from typing import Type, TypeVar, List
+from typing import Type, TypeVar, List, Optional
 
 import fastapi
 from fastapi import HTTPException
@@ -316,4 +316,24 @@ class Vacancy(CreateVacancy):
             created_at=round(float(data.created_at.timestamp()))
         )
 
+class Stats(BaseModel):
+    online: int
 
+class Event(BaseModel):
+    updateStats: Optional[Stats] = None
+    newPost: Optional[IncompletePost] = None
+    removePost: Optional[int] = None
+
+    def encode(self):
+        out = {}
+
+        if self.updateStats:
+            out["updateStats"] = self.updateStats.model_dump()
+
+        if self.newPost:
+            out["newPost"] = self.newPost.model_dump()
+
+        if self.removePost:
+            out["removePost"] = self.removePost
+
+        return out

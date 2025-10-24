@@ -1,5 +1,6 @@
 import os
 
+from routes.websocket import websocket_router
 from utils import regenerate_secret
 
 if not os.path.isfile("secret"):
@@ -67,6 +68,7 @@ async def exception_handler(
     )
 
 
+app.include_router(websocket_router)
 app.include_router(content_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
