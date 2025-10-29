@@ -30,7 +30,7 @@ class DatabasePost(Base):
     title: Mapped[str]
     body: Mapped[str]
     publish_date = Column(DateTime(timezone=True), server_default=func.now())
-    images: Mapped[str]
+    files: Mapped[str]
     author: Mapped[str] = mapped_column(String(100))
     type: Mapped[int]
     status = Column(Enum(PostStatus))

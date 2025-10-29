@@ -92,7 +92,7 @@ class IncompletePost(BaseModel):
             body=crop_first_paragraph(data.body),
             publish_date=round(float(data.publish_date.timestamp())),
             type=data.type,
-            files=File.get_files(data.images.split("\n")),
+            files=File.get_files(data.files.split("\n")),
             category=data.category
         )
 
@@ -128,7 +128,7 @@ class PublicPost(BaseModel):
     def from_database(cls: Type[PN], data: DatabasePost) -> PN:
         return PublicPost(
             id=data.id,
-            files=File.get_files(data.images.split("\n")),
+            files=File.get_files(data.files.split("\n")),
             title=data.title,
             body=data.body,
             publish_date=data.publish_date.timestamp(),
@@ -186,7 +186,7 @@ class PrivatePost(BaseModel):
             title=data.title,
             body=data.body,
             publish_date=round(float(data.publish_date.timestamp())),
-            files=File.get_files(data.images.split("\n")),
+            files=File.get_files(data.files.split("\n")),
             author=data.author,
             type=data.type,
             status=data.status,

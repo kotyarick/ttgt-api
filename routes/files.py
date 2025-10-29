@@ -55,7 +55,7 @@ async def upload(
     file_hash = sha256(body).hexdigest()
 
     if os.path.exists(f"database_files/{file_hash}"):
-        return {"id": file_hash}
+        return { "id": file_hash }
 
     with open(f"database_files/{file_hash}", "wb") as file:
         file.write(body)
@@ -66,7 +66,7 @@ async def upload(
             name=filename
         ))
 
-    return {"id": file_hash}
+    return { "id": file_hash }
 
 
 @files_router.get(
