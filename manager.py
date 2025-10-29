@@ -6,7 +6,7 @@ from sys import argv
 from argon2 import PasswordHasher
 
 from database import Session
-from models.database import DatabaseTeacher
+from models.database import DatabaseTeacher, DatabaseAdmin
 from utils import regenerate_secret
 
 if len(argv) < 2:
@@ -52,7 +52,7 @@ match argv[1]:
 
         with Session.begin() as session:
             session.add(
-                DatabaseTeacher(
+                DatabaseAdmin(
                     first_name=first_name,
                     second_name=second_name,
                     middle_name=middle_name,
