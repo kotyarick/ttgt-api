@@ -99,5 +99,6 @@ async def get_file(
     return FileResponse(
         f"database_files/{file_id}",
         filename=file.name,
-        media_type=mime
+        media_type=mime,
+        content_disposition_type="inline"
     )
