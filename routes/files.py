@@ -98,8 +98,6 @@ async def get_file(
 
     return FileResponse(
         f"database_files/{file_id}",
-        headers={
-            'Content-Disposition': f'attachment; filename="{file.name}',
-            "content-type": mime
-        }
+        filename=file.name,
+        media_type=mime
     )
