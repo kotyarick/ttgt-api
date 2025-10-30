@@ -69,24 +69,21 @@ async def upload(
 
         session.add(DatabaseFile(
             id=file_hash,
-            name=filename,
-            deattached=deattached is not None
+            name=filename
         ))
 
     return { "id": file_hash }
 
 
 @files_router.get(
-    "/{file_id:str}",
+    "/{file_name:str}",
     name="Скачать файл"
 )
-async def get_file(file_id: str):
+async def get_file(file_name: str):
     """
     После ID файла можно указать расширение
     """
-    file_id = file_id.split(".", 1)[0]
-    if not os.path.isfile(f"database_files/{file_id}"):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    file_id = file_name.split(".", 1)[0]
 
     with Session.begin() as session:
         db_file = session.scalar(
@@ -94,7 +91,7 @@ async def get_file(file_id: str):
             .where(DatabaseFile.id == file_id)
         ) or session.scalar(
             select(DatabaseFile)
-            .where(DatabaseFile.name == file_id)
+            .where(DatabaseFile.name == file_name)
         )
 
         if not db_file:
@@ -102,10 +99,10 @@ async def get_file(file_id: str):
 
         file = File.from_database(db_file)
 
-    mime = magic.Magic(mime=True).from_buffer(open(f"database_files/{file_id}", "rb").read())
+    mime = magic.Magic(mime=True).from_buffer(open(f"database_files/{file.id}", "rb").read())
 
     return FileResponse(
-        f"database_files/{file_id}",
+        f"database_files/{file.id}",
         filename=file.name,
         media_type=mime,
         content_disposition_type="inline"
