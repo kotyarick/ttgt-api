@@ -17,14 +17,14 @@ from routes.websocket import broadcast_event
 posts_router = APIRouter(prefix="/posts", tags=[POSTS, ADMIN_ONLY])
 
 async def on_post_create_or_update(post: IncompletePost, is_public: bool):
-    asyncio.create_task(cleanup_files())
+    # asyncio.create_task(cleanup_files())
 
     if is_public:
         await broadcast_event(Event(
             newPost=post
         ))
 
-async def cleanup_files():
+def cleanup_files():
     with Session.begin() as session:
         files: List[str] = session.scalars(
             select(DatabasePost.files)
@@ -46,6 +46,8 @@ async def cleanup_files():
 
         if counter > 0:
             print(f"Удалено не используемых файлов: {counter}")
+
+cleanup_files()
 
 @posts_router.post("/", name="Создать пост")
 async def create_post(
@@ -177,7 +179,7 @@ async def delete_post(
         removePost=post_id
     ))
 
-    await cleanup_files()
+    #await cleanup_files()
 
 @posts_router.get("/{post_id:int}", name="Получить пост")
 async def get_post(

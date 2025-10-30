@@ -61,6 +61,11 @@ async def upload(
         file.write(body)
 
     with Session.begin() as session:
+        if session.scalar(
+            select(DatabaseFile.id).where(DatabaseFile.id == file_hash)
+        ):
+            return {"id": file_hash}
+
         session.add(DatabaseFile(
             id=file_hash,
             name=filename
