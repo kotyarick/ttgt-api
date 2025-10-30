@@ -1,6 +1,7 @@
 import os.path
 from hashlib import sha256
 from io import BytesIO
+from typing import Optional
 
 import magic
 from PIL import Image
@@ -68,7 +69,8 @@ async def upload(
 
         session.add(DatabaseFile(
             id=file_hash,
-            name=filename
+            name=filename,
+            deattached=deattached is not None
         ))
 
     return { "id": file_hash }
@@ -78,9 +80,7 @@ async def upload(
     "/{file_id:str}",
     name="Скачать файл"
 )
-async def get_file(
-        file_id: str
-):
+async def get_file(file_id: str):
     """
     После ID файла можно указать расширение
     """
@@ -92,6 +92,9 @@ async def get_file(
         db_file = session.scalar(
             select(DatabaseFile)
             .where(DatabaseFile.id == file_id)
+        ) or session.scalar(
+            select(DatabaseFile)
+            .where(DatabaseFile.name == file_id)
         )
 
         if not db_file:
