@@ -29,7 +29,8 @@ files_router = APIRouter(
 async def upload(
         request: Request,
         _admin: AdminRequired,
-        filename: str
+        filename: str,
+        deattached: Optional[str]
 ):
     """
     Выложить файл. На выходе даёт ID. ID файла - это sha256
@@ -65,11 +66,12 @@ async def upload(
         if session.scalar(
             select(DatabaseFile.id).where(DatabaseFile.id == file_hash)
         ):
-            return {"id": file_hash}
+            return { "id": file_hash }
 
         session.add(DatabaseFile(
             id=file_hash,
-            name=filename
+            name=filename,
+            deattached=deattached is not None
         ))
 
     return { "id": file_hash }

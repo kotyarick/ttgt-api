@@ -1,7 +1,7 @@
 import asyncio
 import os.path
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 from fastapi import APIRouter, HTTPException
 from fastapi import status
@@ -10,7 +10,7 @@ from sqlalchemy import select
 from api_tags import POSTS, ADMIN_ONLY
 from database import Session
 from models.api import PrivatePost, PostablePost, IncompletePost, Event
-from models.database import DatabasePost, PostStatus
+from models.database import DatabasePost, PostStatus, DatabaseFile
 from routes.admin import AdminRequired
 from routes.websocket import broadcast_event
 
@@ -37,11 +37,24 @@ def cleanup_files():
 
         real_files = os.listdir("database_files")
 
+        files_table: Dict[str, DatabaseFile] = {
+            file.id: file
+
+            for file in
+            session.scalars(
+                select(DatabaseFile)
+            ).all()
+        }
+
         counter = 0
 
         for real_file in real_files:
+            if real_file in files_table and files_table[real_file].deattached:
+                continue
+
             if not real_file in database_files:
                 os.remove(f"database_files/{real_file}")
+                session.query(DatabaseFile).filter(DatabaseFile.id == real_file).delete()
                 counter += 1
 
         if counter > 0:
