@@ -1,15 +1,14 @@
-import mimetypes
 import os.path
 from typing import Type, TypeVar, List, Optional
 
 import fastapi
 from fastapi import HTTPException
-from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
 
 from database import Session
 from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
+from routes.files import mime_of
 from utils import crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompletePost')
@@ -48,15 +47,10 @@ class File(BaseModel):
 
     @classmethod
     def from_database(cls, data: DatabaseFile):
-        mime: str = Magic(mime=True).from_buffer(open(f"database_files/{data.id}", "rb").read())
-
-        if mime == "application/octet-stream":
-            mime = mimetypes.guess_type(data.name)[0] or "application/octet-stream"
-
         return File(
             id=data.id,
             name=data.name,
-            mime=mime
+            mime=mime_of(data.name, data.id)
         )
 
 class IncompletePost(BaseModel):

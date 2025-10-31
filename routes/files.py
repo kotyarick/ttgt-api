@@ -22,6 +22,13 @@ files_router = APIRouter(
     tags=[FILES]
 )
 
+def mime_of(name: str, id: str = None, buf = None):
+    mime = magic.Magic(mime=True).from_buffer(buf or open(f"database_files/{id}", "rb").read())
+
+    if mime == "application/octet-stream":
+        mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
+
+    return mime
 
 @files_router.post(
     "/", tags=[ADMIN_ONLY],
@@ -40,7 +47,7 @@ async def upload(
     # with open("/tmp/file", "wb") as f:
     #    f.write(body)
 
-    is_image = magic.Magic(mime=True).from_buffer(body).startswith("image/")
+    is_image = mime_of(filename, buf=body)
 
     if is_image:
         img = Image.open(BytesIO(body))
