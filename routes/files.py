@@ -104,7 +104,7 @@ async def get_file(file_name: str):
 
     mime: str = magic.Magic(mime=True).from_buffer(open(f"database_files/{file.id}", "rb").read())
     if mime == "application/octet-stream":
-        mime = mimetypes.guess_type(file_name)[0] or "application/octet-stream"
+        mime = mimetypes.guess_type(db_file.name)[0] or "application/octet-stream"
 
     return FileResponse(
         f"database_files/{file.id}",
