@@ -8,9 +8,9 @@ from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from database import Session, FILES_PATH
-from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
-from utils import crop_first_paragraph
+from ..database import Session, FILES_PATH
+from ..models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
+from ..utils import crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompletePost')
 PN = TypeVar('PN', bound='PublicPost')

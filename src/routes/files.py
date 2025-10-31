@@ -12,11 +12,11 @@ from fastapi import status
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 
-from api_tags import FILES, ADMIN_ONLY
-from database import Session, FILES_PATH
-from models.api import File, mime_of
-from models.database import DatabaseFile
-from routes.admin import AdminRequired
+from ..api_tags import FILES, ADMIN_ONLY
+from ..database import Session, FILES_PATH
+from ..models.api import File, mime_of
+from ..models.database import DatabaseFile
+from ..routes.admin import AdminRequired
 
 files_router = APIRouter(
     prefix="/files",

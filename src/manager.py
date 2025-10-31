@@ -5,9 +5,9 @@ from sys import argv
 
 from argon2 import PasswordHasher
 
-from database import Session
-from models.database import DatabaseTeacher, DatabaseAdmin
-from utils import regenerate_secret
+from .database import Session
+from .models.database import DatabaseTeacher, DatabaseAdmin
+from .utils import regenerate_secret
 
 if len(argv) < 2:
     argv.append("")

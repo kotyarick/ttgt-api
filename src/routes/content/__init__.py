@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api_tags import CONTENT
+from ...api_tags import CONTENT
 from .posts import posts_router
 from .vacancies import vacancies_router
 

@@ -8,10 +8,10 @@ from fastapi import APIRouter, HTTPException
 from fastapi import status
 from sqlalchemy import select
 
-from api_tags import ADMIN_ONLY
-from database import Session
-from models.api import LoginRequest, LoginResult, Admin
-from models.database import DatabaseAdmin
+from ..api_tags import ADMIN_ONLY
+from ..database import Session
+from ..models.api import LoginRequest, LoginResult, Admin
+from ..models.database import DatabaseAdmin
 
 auth_router = APIRouter(prefix="/auth")
 

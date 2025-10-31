@@ -1,16 +1,12 @@
 import os
 
-from routes.websocket import websocket_router
-from database import FILES_PATH
-from utils import regenerate_secret
+from .database import FILES_PATH
+from .utils import regenerate_secret
 
 if not os.path.isfile("secret"):
     regenerate_secret()
 
-
 from fastapi.responses import Response, RedirectResponse
-
-from routes.files import files_router
 
 if not os.path.isdir(FILES_PATH):
     os.mkdir(FILES_PATH)
@@ -18,9 +14,12 @@ if not os.path.isdir(FILES_PATH):
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes.admin import admin_router
-from routes.auth import auth_router
-from routes.content import content_router
+from .routes.files import files_router
+from .routes.admin import admin_router
+from .routes.auth import auth_router
+from .routes.content import content_router
+from .routes.websocket import websocket_router
+
 
 app = FastAPI()
 

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from models.database import Base
+from .models.database import Base
 
 
 FILES_PATH = "database/files"

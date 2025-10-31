@@ -4,8 +4,8 @@ from typing import List
 
 from fastapi import APIRouter, WebSocket
 
-from api_tags import WEBSOCKET
-from models.api import Event, Stats
+from ..api_tags import WEBSOCKET
+from ..models.api import Event, Stats
 
 websocket_router = APIRouter(
     prefix="/websocket",

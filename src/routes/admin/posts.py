@@ -7,12 +7,12 @@ from fastapi import APIRouter, HTTPException
 from fastapi import status
 from sqlalchemy import select
 
-from api_tags import POSTS, ADMIN_ONLY
-from database import Session, FILES_PATH
-from models.api import PrivatePost, PostablePost, IncompletePost, Event
-from models.database import DatabasePost, PostStatus, DatabaseFile
-from routes.admin import AdminRequired
-from routes.websocket import broadcast_event
+from ...api_tags import POSTS, ADMIN_ONLY
+from ...database import Session, FILES_PATH
+from ...models.api import PrivatePost, PostablePost, IncompletePost, Event
+from ...models.database import DatabasePost, PostStatus, DatabaseFile
+from ...routes.admin import AdminRequired
+from ...routes.websocket import broadcast_event
 
 posts_router = APIRouter(prefix="/posts", tags=[POSTS, ADMIN_ONLY])
 

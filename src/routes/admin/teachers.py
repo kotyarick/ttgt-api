@@ -4,10 +4,10 @@ from fastapi import APIRouter
 from fastapi import status
 from sqlalchemy import select
 
-from api_tags import TEACHERS
-from database import Session
-from models.api import Teacher, CreateTeacher
-from models.database import DatabaseTeacher
+from ...api_tags import TEACHERS
+from ...database import Session
+from ...models.api import Teacher, CreateTeacher
+from ...models.database import DatabaseTeacher
 
 teachers_router = APIRouter(prefix="/teachers", tags=[TEACHERS])
 

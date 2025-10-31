@@ -5,10 +5,10 @@ from fastapi import APIRouter, HTTPException
 from fastapi import status
 from sqlalchemy import select
 
-from api_tags import CONTENT, POSTS
-from database import Session
-from models.api import IncompletePost, PublicPost
-from models.database import DatabasePost, PostStatus
+from ...api_tags import CONTENT, POSTS
+from ...database import Session
+from ...models.api import IncompletePost, PublicPost
+from ...models.database import DatabasePost, PostStatus
 
 posts_router = APIRouter(prefix="/posts", tags=[POSTS, CONTENT])
 

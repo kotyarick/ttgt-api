@@ -4,9 +4,9 @@ from fastapi import Depends, APIRouter, Header
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 
-from api_tags import ADMIN_ONLY
-from models.api import Admin
-from routes.auth import extract_jwt
+from ...api_tags import ADMIN_ONLY
+from ...models.api import Admin
+from ...routes.auth import extract_jwt
 from .vacancies import vacancies_router
 from ..websocket import broadcast_event
 from ...models.api import Event
