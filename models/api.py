@@ -37,7 +37,7 @@ class File(BaseModel):
                 )
             except:
                 return None
-            return File.from_database(File)
+            return File.from_database(file)
 
     @classmethod
     def get_files(cls, ids: List[str]):
