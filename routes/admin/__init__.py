@@ -1,6 +1,7 @@
 from typing import Annotated, TypeAlias
 
 from fastapi import Depends, APIRouter, Header
+from starlette.responses import RedirectResponse
 
 from api_tags import ADMIN_ONLY
 from models.api import Admin
@@ -29,6 +30,10 @@ async def get_super_secret_data(
     print(admin)
     return {"data": "У тебя получилось"}
 
+
+@admin_router.get("/zamena")
+async def get_overrides():
+    return RedirectResponse("/files/zamena.pdf")
 
 from .posts import posts_router
 from .teachers import teachers_router
