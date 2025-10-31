@@ -1,5 +1,6 @@
 import mimetypes
 import os.path
+import traceback
 from hashlib import sha256
 from io import BytesIO
 from typing import Optional
@@ -42,17 +43,20 @@ async def upload(
     is_image = mime_of(filename, buf=body)
 
     if is_image:
-        img = Image.open(BytesIO(body))
+        try:
+            img = Image.open(BytesIO(body))
 
-        # Create output buffer
-        output_buffer = BytesIO()
+            # Create output buffer
+            output_buffer = BytesIO()
 
-        # Save compressed image to buffer
-        img.save(output_buffer, format="png", quality=0.7, optimize=True)
+            # Save compressed image to buffer
+            img.save(output_buffer, format="png", quality=0.7, optimize=True)
 
-        # Get buffer bytes
-        output_buffer.seek(0)
-        body = output_buffer.read()
+            # Get buffer bytes
+            output_buffer.seek(0)
+            body = output_buffer.read()
+        except:
+            traceback.format_exc()
 
     file_hash = sha256(body).hexdigest()
 

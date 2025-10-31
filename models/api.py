@@ -17,7 +17,7 @@ PN = TypeVar('PN', bound='PublicPost')
 PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
-def mime_of(name: str, id: str = None, buf = None):
+def mime_of(name: str, id: str = None, buf: bytes = None):
     mime = Magic(mime=True).from_buffer(buf or open(f"database_files/{id}", "rb").read())
 
     if mime == "application/octet-stream":
