@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy import select
 
 from api_tags import FILES, ADMIN_ONLY
-from database import Session
+from database import Session, FILES_PATH
 from models.api import File, mime_of
 from models.database import DatabaseFile
 from routes.admin import AdminRequired
@@ -60,10 +60,10 @@ async def upload(
 
     file_hash = sha256(body).hexdigest()
 
-    if os.path.exists(f"database_files/{file_hash}"):
+    if os.path.exists(f"{FILES_PATH}/{file_hash}"):
         return { "id": file_hash }
 
-    with open(f"database_files/{file_hash}", "wb") as file:
+    with open(f"{FILES_PATH}/{file_hash}", "wb") as file:
         file.write(body)
 
     with Session.begin() as session:
@@ -106,7 +106,7 @@ async def get_file(file_name: str):
         file = File.from_database(db_file)
 
     return FileResponse(
-        f"database_files/{file.id}",
+        f"{FILES_PATH}/{file.id}",
         filename=file.name,
         media_type=file.mime,
         content_disposition_type="inline"

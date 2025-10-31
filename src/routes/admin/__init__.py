@@ -1,7 +1,8 @@
 from typing import Annotated, TypeAlias
 
 from fastapi import Depends, APIRouter, Header
-from starlette.responses import RedirectResponse
+from fastapi.requests import Request
+from fastapi.responses import RedirectResponse
 
 from api_tags import ADMIN_ONLY
 from models.api import Admin
@@ -23,17 +24,24 @@ AdminRequired: TypeAlias = Annotated["Admin", Depends(admin_login)]
 admin_router = APIRouter(prefix="/admin", tags=[ADMIN_ONLY], dependencies=[Depends(admin_login)])
 
 
-@admin_router.get("/super-secret")
-async def get_super_secret_data(
-        admin: AdminRequired
-) -> dict[str, str]:
-    print(admin)
-    return {"data": "У тебя получилось"}
+@admin_router.patch("/{fixed_file:str}")
+async def update_file(
+        fixed_file: str,
+        request: Request
+):
+    fixed_files = {
+        "zamena": "zamena.pdf"
+    }
 
+    if not fixed_file in fixed_files:
+        return None
 
-@admin_router.get("/zamena")
-async def get_overrides():
-    return RedirectResponse("/files/zamena.pdf")
+    file_name = fixed_files[fixed_file]
+
+    with open(f"database/fixed_files/{file_name}", "wb") as f:
+        f.write(await request.body())
+
+    return {}
 
 from .posts import posts_router
 from .teachers import teachers_router

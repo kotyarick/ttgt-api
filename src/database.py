@@ -3,7 +3,10 @@ from sqlalchemy.orm import sessionmaker
 
 from models.database import Base
 
-engine = create_engine("sqlite:///database.sqlite")
+
+FILES_PATH = "database/files"
+
+engine = create_engine("sqlite:///database/database.sqlite")
 
 Session = sessionmaker(bind=engine)
 

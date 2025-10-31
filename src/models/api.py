@@ -8,7 +8,7 @@ from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from database import Session
+from database import Session, FILES_PATH
 from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
 from utils import crop_first_paragraph
 
@@ -18,7 +18,7 @@ PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
 def mime_of(name: str, id: str = None, buf: bytes = None):
-    mime = Magic(mime=True).from_buffer(buf or open(f"database_files/{id}", "rb").read())
+    mime = Magic(mime=True).from_buffer(buf or open(f"{FILES_PATH}/{id}", "rb").read())
 
     if mime == "application/octet-stream":
         mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
@@ -34,7 +34,7 @@ class File(BaseModel):
     def get_file(cls, id: str):
         if not id:
             return None
-        if not os.path.isfile(f"database_files/{id}"):
+        if not os.path.isfile(f"{FILES_PATH}/{id}"):
             return None
 
         with Session.begin() as session:
@@ -163,7 +163,7 @@ class PostablePost(BaseModel):
             assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
 
             for file in self.files:
-                assert os.path.isfile(f"database_files/{file}"), f"Файла с ID {file} нет"
+                assert os.path.isfile(f"{FILES_PATH}/{file}"), f"Файла с ID {file} нет"
         except AssertionError as error:
             raise HTTPException(
                 status_code=fastapi.status.HTTP_400_BAD_REQUEST,

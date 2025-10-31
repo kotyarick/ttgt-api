@@ -8,7 +8,7 @@ from fastapi import status
 from sqlalchemy import select
 
 from api_tags import POSTS, ADMIN_ONLY
-from database import Session
+from database import Session, FILES_PATH
 from models.api import PrivatePost, PostablePost, IncompletePost, Event
 from models.database import DatabasePost, PostStatus, DatabaseFile
 from routes.admin import AdminRequired
@@ -35,7 +35,7 @@ def cleanup_files():
             for file in "\n".join(files).split("\n")
         ]
 
-        real_files = os.listdir("database_files")
+        real_files = os.listdir(FILES_PATH)
 
         files_table: Dict[str, DatabaseFile] = {
             file.id: file
@@ -53,7 +53,7 @@ def cleanup_files():
                 continue
 
             if not real_file in database_files:
-                os.remove(f"database_files/{real_file}")
+                os.remove(f"{FILES_PATH}/{real_file}")
                 session.query(DatabaseFile).filter(DatabaseFile.id == real_file).delete()
                 counter += 1
 
