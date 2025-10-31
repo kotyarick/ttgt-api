@@ -8,6 +8,8 @@ from api_tags import ADMIN_ONLY
 from models.api import Admin
 from routes.auth import extract_jwt
 from .vacancies import vacancies_router
+from ..websocket import broadcast_event
+from ...models.api import Event
 
 
 def admin_login(
@@ -22,6 +24,13 @@ def admin_login(
 AdminRequired: TypeAlias = Annotated["Admin", Depends(admin_login)]
 
 admin_router = APIRouter(prefix="/admin", tags=[ADMIN_ONLY], dependencies=[Depends(admin_login)])
+
+from .posts import posts_router
+from .teachers import teachers_router
+
+admin_router.include_router(posts_router)
+admin_router.include_router(teachers_router)
+admin_router.include_router(vacancies_router)
 
 
 @admin_router.patch("/{fixed_file:str}")
@@ -41,11 +50,8 @@ async def update_file(
     with open(f"database/fixed_files/{file_name}", "wb") as f:
         f.write(await request.body())
 
-    return {}
+    await broadcast_event(Event(
+        updateFile=fixed_file
+    ))
 
-from .posts import posts_router
-from .teachers import teachers_router
-
-admin_router.include_router(posts_router)
-admin_router.include_router(teachers_router)
-admin_router.include_router(vacancies_router)
+    return { }

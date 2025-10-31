@@ -327,6 +327,7 @@ class Event(BaseModel):
     updateStats: Optional[Stats] = None
     newPost: Optional[IncompletePost] = None
     removePost: Optional[int] = None
+    updateFile: Optional[str] = None
 
     def encode(self):
         out = {}
@@ -339,5 +340,9 @@ class Event(BaseModel):
 
         if self.removePost:
             out["removePost"] = self.removePost
+
+        if self.updateFile:
+            out["updateFile"] = self.updateFile
+
 
         return out
