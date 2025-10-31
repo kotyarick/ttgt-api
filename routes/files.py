@@ -13,7 +13,7 @@ from sqlalchemy import select
 
 from api_tags import FILES, ADMIN_ONLY
 from database import Session
-from models.api import File
+from models.api import File, mime_of
 from models.database import DatabaseFile
 from routes.admin import AdminRequired
 
@@ -21,14 +21,6 @@ files_router = APIRouter(
     prefix="/files",
     tags=[FILES]
 )
-
-def mime_of(name: str, id: str = None, buf = None):
-    mime = magic.Magic(mime=True).from_buffer(buf or open(f"database_files/{id}", "rb").read())
-
-    if mime == "application/octet-stream":
-        mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
-
-    return mime
 
 @files_router.post(
     "/", tags=[ADMIN_ONLY],

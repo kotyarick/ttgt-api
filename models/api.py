@@ -1,14 +1,15 @@
+import mimetypes
 import os.path
 from typing import Type, TypeVar, List, Optional
 
 import fastapi
 from fastapi import HTTPException
+from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
 
 from database import Session
 from models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
-from routes.files import mime_of
 from utils import crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompletePost')
@@ -16,6 +17,13 @@ PN = TypeVar('PN', bound='PublicPost')
 PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
+def mime_of(name: str, id: str = None, buf = None):
+    mime = Magic(mime=True).from_buffer(buf or open(f"database_files/{id}", "rb").read())
+
+    if mime == "application/octet-stream":
+        mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
+
+    return mime
 
 class File(BaseModel):
     id: str
