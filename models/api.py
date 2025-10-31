@@ -37,11 +37,7 @@ class File(BaseModel):
                 )
             except:
                 return None
-            return File(
-                id = id,
-                name = file.name,
-                mime = Magic(True).from_file(f"database_files/{id}")
-            )
+            return File.from_database(File)
 
     @classmethod
     def get_files(cls, ids: List[str]):
