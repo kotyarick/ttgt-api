@@ -102,13 +102,9 @@ async def get_file(file_name: str):
 
         file = File.from_database(db_file)
 
-    mime: str = magic.Magic(mime=True).from_buffer(open(f"database_files/{file.id}", "rb").read())
-    if mime == "application/octet-stream":
-        mime = mimetypes.guess_type(file.name)[0] or "application/octet-stream"
-
     return FileResponse(
         f"database_files/{file.id}",
         filename=file.name,
-        media_type=mime,
+        media_type=file.mime,
         content_disposition_type="inline"
     )

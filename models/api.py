@@ -1,3 +1,4 @@
+import mimetypes
 import os.path
 from typing import Type, TypeVar, List, Optional
 
@@ -51,10 +52,15 @@ class File(BaseModel):
 
     @classmethod
     def from_database(cls, data: DatabaseFile):
+        mime: str = Magic(mime=True).from_buffer(open(f"database_files/{data.id}", "rb").read())
+
+        if mime == "application/octet-stream":
+            mime = mimetypes.guess_type(data.name)[0] or "application/octet-stream"
+
         return File(
             id=data.id,
             name=data.name,
-            mime=Magic(True).from_file(f"database_files/{data.id}")
+            mime=mime
         )
 
 class IncompletePost(BaseModel):

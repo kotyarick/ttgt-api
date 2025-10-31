@@ -25,8 +25,8 @@ async def get_posts_list(
         # noinspection PyTypeChecker
         posts: List[DatabasePost] = session.scalars(
             select(DatabasePost).where(
-                DatabasePost.status == PostStatus.Published
-                and DatabasePost.category == category
+                DatabasePost.status == PostStatus.Published,
+                DatabasePost.category == category
             ).offset(offset).limit(limit)
         ).all()
 
