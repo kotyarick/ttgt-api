@@ -49,7 +49,7 @@ def cleanup_files():
         counter = 0
 
         for real_file in real_files:
-            if real_file in files_table and files_table[real_file].deattached:
+            if real_file in files_table:
                 continue
 
             if not real_file in database_files:

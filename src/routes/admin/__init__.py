@@ -32,8 +32,7 @@ admin_router.include_router(posts_router)
 admin_router.include_router(teachers_router)
 admin_router.include_router(vacancies_router)
 
-
-@admin_router.patch("/{fixed_file:str}")
+@admin_router.patch("/fixedfiles/{fixed_file:str}")
 async def update_file(
         fixed_file: str,
         request: Request

@@ -110,4 +110,3 @@ class DatabaseFile(Base):
 
     id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str] = Column(String(), nullable=False)
-    deattached: Mapped[bool] = Column(Boolean(), nullable=False)
