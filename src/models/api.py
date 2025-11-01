@@ -155,6 +155,8 @@ class PostablePost(BaseModel):
     category: int
 
     def check(self):
+        self.files = list(set(self.files))
+
         try:
             assert self.body != "", "Поле title обязательно"
             assert self.author != "", "Поле body обязательно"
