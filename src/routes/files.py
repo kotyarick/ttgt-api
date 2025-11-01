@@ -28,7 +28,7 @@ files_router = APIRouter(
     name="Добавить файл"
 )
 async def upload(
-        file: UploadFile,
+        body: UploadFile,
         _admin: AdminRequired,
 ):
     """
@@ -37,11 +37,14 @@ async def upload(
     # with open("/tmp/file", "wb") as f:
     #    f.write(body)
 
-    is_image = mime_of(file.filename, buf=file.file.read())
+    filename = body.filename
+    body = body.file.read()
+
+    is_image = mime_of(filename, buf=body)
 
     if is_image:
         try:
-            img = Image.open(file.file)
+            img = Image.open(BytesIO(body))
 
             # Create output buffer
             output_buffer = BytesIO()
@@ -51,17 +54,17 @@ async def upload(
 
             # Get buffer bytes
             output_buffer.seek(0)
-            file = output_buffer.read()
+            body = output_buffer.read()
         except:
             traceback.format_exc()
 
-    file_hash = sha256(file).hexdigest()
+    file_hash = sha256(body).hexdigest()
 
     if os.path.exists(f"{FILES_PATH}/{file_hash}"):
         return { "id": file_hash }
 
-    with open(f"{FILES_PATH}/{file_hash}", "wb") as f:
-        f.write(file.file.read())
+    with open(f"{FILES_PATH}/{file_hash}", "wb") as file:
+        file.write(body)
 
     with Session.begin() as session:
         if session.scalar(
@@ -71,7 +74,7 @@ async def upload(
 
         session.add(DatabaseFile(
             id=file_hash,
-            name=file.filename,
+            name=filename,
         ))
 
     return { "id": file_hash }
