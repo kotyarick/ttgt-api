@@ -7,7 +7,7 @@ from typing import Optional
 
 import magic
 from PIL import Image
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, UploadFile
 from fastapi import status
 from fastapi.responses import FileResponse
 from sqlalchemy import select
@@ -28,22 +28,20 @@ files_router = APIRouter(
     name="Добавить файл"
 )
 async def upload(
-        request: Request,
+        file: UploadFile,
         _admin: AdminRequired,
-        filename: str
 ):
     """
     Выложить файл. На выходе даёт ID. ID файла - это sha256
     """
-    body = await request.body()
     # with open("/tmp/file", "wb") as f:
     #    f.write(body)
 
-    is_image = mime_of(filename, buf=body)
+    is_image = mime_of(file.filename, buf=file.file.read())
 
     if is_image:
         try:
-            img = Image.open(BytesIO(body))
+            img = Image.open(file.file)
 
             # Create output buffer
             output_buffer = BytesIO()
@@ -53,17 +51,17 @@ async def upload(
 
             # Get buffer bytes
             output_buffer.seek(0)
-            body = output_buffer.read()
+            file = output_buffer.read()
         except:
             traceback.format_exc()
 
-    file_hash = sha256(body).hexdigest()
+    file_hash = sha256(file).hexdigest()
 
     if os.path.exists(f"{FILES_PATH}/{file_hash}"):
         return { "id": file_hash }
 
-    with open(f"{FILES_PATH}/{file_hash}", "wb") as file:
-        file.write(body)
+    with open(f"{FILES_PATH}/{file_hash}", "wb") as f:
+        f.write(file.file.read())
 
     with Session.begin() as session:
         if session.scalar(
@@ -73,7 +71,7 @@ async def upload(
 
         session.add(DatabaseFile(
             id=file_hash,
-            name=filename,
+            name=file.filename,
         ))
 
     return { "id": file_hash }
