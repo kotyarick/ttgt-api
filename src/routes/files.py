@@ -17,11 +17,32 @@ from ..database import Session, FILES_PATH
 from ..models.api import File, mime_of
 from ..models.database import DatabaseFile
 from ..routes.admin import AdminRequired
+from ..admin import fixed_files
 
 files_router = APIRouter(
     prefix="/files",
     tags=[FILES]
 )
+
+
+@files_router.get(
+    "/fixed/{fixed_file:str}"
+)
+async def get_fixed_file(fixed_file: str):
+    if not fixed_file in fixed_files:
+        return None
+
+    file_name = fixed_files[fixed_file]
+    path = f"database/fixed_files/{file_name}"
+
+    return FileResponse(
+        path,
+        media_type=mime_of(
+            path, 
+            buf=open(path, "rb").read()
+        ),
+        content_disposition_type="inline"
+    )
 
 @files_router.post(
     "/", tags=[ADMIN_ONLY],

@@ -1,6 +1,6 @@
 from typing import Annotated, TypeAlias
 
-from fastapi import Depends, APIRouter, Header
+from fastapi import Depends, APIRouter, Header, UploadFile
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 
@@ -32,22 +32,26 @@ admin_router.include_router(posts_router)
 admin_router.include_router(teachers_router)
 admin_router.include_router(vacancies_router)
 
+
+
+fixed_files = {
+    "zamena": "zamena.pdf"
+}
+
+
+
 @admin_router.patch("/fixedfiles/{fixed_file:str}")
 async def update_file(
         fixed_file: str,
-        request: Request
+        file: UploadFile
 ):
-    fixed_files = {
-        "zamena": "zamena.pdf"
-    }
-
     if not fixed_file in fixed_files:
         return None
 
     file_name = fixed_files[fixed_file]
 
     with open(f"database/fixed_files/{file_name}", "wb") as f:
-        f.write(await request.body())
+        f.write(file.file.read())
 
     await broadcast_event(Event(
         updateFile=fixed_file
