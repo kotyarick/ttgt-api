@@ -1,16 +1,11 @@
 from typing import Annotated, TypeAlias
 
-from fastapi import Depends, APIRouter, Header, UploadFile
-from fastapi.requests import Request
-from fastapi.responses import RedirectResponse
+from fastapi import Depends, APIRouter, Header
 
-from .fixed_files import fixed_files_router
 from ...api_tags import ADMIN_ONLY
 from ...models.api import Admin
 from ...routes.auth import extract_jwt
 from .vacancies import vacancies_router
-from ..websocket import broadcast_event
-from ...models.api import Event
 
 
 def admin_login(
@@ -18,6 +13,7 @@ def admin_login(
 ) -> Admin:
     return extract_jwt(x_authorization)
 
+from .fixed_files import fixed_files_router
 
 #  Depends, который даёт информацию об админе
 #  из токена в заголовке запроса

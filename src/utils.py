@@ -2,6 +2,8 @@ import random
 
 import toml
 
+config = {}
+
 try:
     config = toml.load(open("config.toml"))
 except:
