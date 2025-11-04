@@ -1,5 +1,11 @@
 import random
 
+import toml
+
+try:
+    config = toml.load(open("config.toml"))
+except:
+    print("Конфиг не валидный или отсутствует")
 
 def crop_first_paragraph(text: str) -> str:
     return text.split("\n", 1)[0]

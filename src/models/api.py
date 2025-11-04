@@ -1,5 +1,6 @@
 import mimetypes
 import os.path
+import re
 from typing import Type, TypeVar, List, Optional
 
 import fastapi
@@ -7,6 +8,7 @@ from fastapi import HTTPException
 from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from ..database import Session, FILES_PATH
 from ..models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
@@ -255,41 +257,6 @@ class CreateTeacher(BaseModel):
     """ Отчество """
 
 
-class Comment(BaseModel):
-    """
-    Комментарий к посту
-    """
-
-    id: int
-
-    post_id: int
-    """
-    ID Поста, к которой написан комментарий
-    """
-
-    sender_name: str
-    """
-    Кем представился отправитель
-    """
-
-    content: str
-    """
-    Текст комментария
-    """
-
-
-class Appeal(BaseModel):
-    """
-    Апелляция
-    """
-
-    id: int
-
-    email: str
-    phone: str
-    message: str
-
-
 class LoginRequest(BaseModel):
     second_name: str
     password: str
@@ -348,3 +315,49 @@ class Event(BaseModel):
 
 
         return out
+
+class Feedback(BaseModel):
+    """ Обращение граждан """
+
+
+    first_name: str
+    """ Имя """
+
+    second_name: str
+    """ Фамилия """
+
+    middle_name: str
+    """ Отчество """
+
+
+    email: str
+    """ Почта """
+
+    phone: str
+    """ Номер телефона """
+
+
+    topic: str
+    """ Тема сообщения """
+
+    content: str
+    """ Сообщение """
+
+
+    def check(self):
+        try:
+            assert 0 < len(self.first_name) < 15,  "Имя не правильной длины"
+            assert 0 < len(self.second_name) < 15, "Фамилия не правильной длины"
+            assert     len(self.middle_name) < 15, "Отчество не правильной длины"
+
+            assert re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', self.email) is not None, "Почта не валидна"
+            assert re.match(r"\+7[0-9]{10}", self.phone) is not None
+
+            assert     len(self.topic) < 100,    "Тема слишком длинная"
+            assert 0 < len(self.content) < 4096, "Сообщение слишком длинное"
+
+        except AssertionError as error:
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=error.args[0]
+            )

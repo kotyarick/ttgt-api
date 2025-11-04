@@ -83,28 +83,6 @@ class DatabaseTeacher(Base):
     """ Инициалы """
 
 
-class DatabaseComment(Base):
-    __tablename__ = "comments"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    post_id = mapped_column(ForeignKey("posts.id"))
-    sender_name = Column(String(16), nullable=False)
-    sender_email = Column(String(64), nullable=False)
-    content = Column(String(512), nullable=False)
-    approved = Column(Boolean(), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-
-class DatabaseAppeal(Base):
-    __tablename__ = "appeals"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email = Column(String(64), nullable=False)
-    phone = Column(String(12), nullable=False)
-    message = Column(String(512), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-
 class DatabaseFile(Base):
     __tablename__ = "files"
 

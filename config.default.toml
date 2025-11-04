@@ -1,0 +1,10 @@
+#  Данные для авторизации в почтовом сервисе
+[email]
+#  Адрес SMTP сервера
+server = "smtp.yandex.ru"
+#  Адрес отправителя
+email = "ttgt-rgups@yandex.ru"
+#  Пароль
+password = ""
+#  Адрес ответственного за связь с общественностью
+forward_to = "feedback@ttgt.org"
