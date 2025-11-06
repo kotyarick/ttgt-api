@@ -1,14 +1,14 @@
 import os
 
+os.makedirs("database/files", exist_ok=True)
+os.makedirs("database/fixed_files", exist_ok=True)
+
 from .database import FILES_PATH
 from .routes.feedback import feedback_router
 from .utils import regenerate_secret
 
 if not os.path.isfile("secret"):
     regenerate_secret()
-
-os.makedirs("database/files", exist_ok=True)
-os.makedirs("database/fixed_files", exist_ok=True)
 
 from fastapi.responses import Response, RedirectResponse
 
