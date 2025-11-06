@@ -7,6 +7,9 @@ from .utils import regenerate_secret
 if not os.path.isfile("secret"):
     regenerate_secret()
 
+os.makedirs("database/files", exist_ok=True)
+os.makedirs("database/fixed_files", exist_ok=True)
+
 from fastapi.responses import Response, RedirectResponse
 
 if not os.path.isdir(FILES_PATH):
