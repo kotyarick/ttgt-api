@@ -1,6 +1,5 @@
 .venv
 secret
-database.sqlite
 .idea
 __pycache__
 */__pycache__
