@@ -1,11 +1,9 @@
-import mimetypes
 import os.path
 import traceback
 from hashlib import sha256
 from io import BytesIO
 from typing import Optional
 
-import magic
 from PIL import Image
 from fastapi import APIRouter, Request, HTTPException, UploadFile
 from fastapi import status
@@ -37,10 +35,7 @@ async def get_fixed_file(fixed_file: str):
 
     return FileResponse(
         path,
-        media_type=mime_of(
-            path, 
-            buf=open(path, "rb").read()
-        ),
+        media_type=mime_of(path),
         content_disposition_type="inline"
     )
 
@@ -61,7 +56,7 @@ async def upload(
     filename = file.filename
     file = file.file.read()
 
-    is_image = mime_of(filename, buf=file)
+    is_image = mime_of(filename)
 
     if is_image:
         try:

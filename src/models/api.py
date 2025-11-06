@@ -5,7 +5,6 @@ from typing import Type, TypeVar, List, Optional
 
 import fastapi
 from fastapi import HTTPException
-from magic import Magic
 from pydantic import BaseModel
 from sqlalchemy import select
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -19,13 +18,8 @@ PN = TypeVar('PN', bound='PublicPost')
 PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
-def mime_of(name: str, id: str = None, buf: bytes = None):
-    mime = Magic(mime=True).from_buffer(buf or open(f"{FILES_PATH}/{id}", "rb").read())
-
-    if mime == "application/octet-stream":
-        mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
-
-    return mime
+def mime_of(name: str):
+    return mimetypes.guess_type(name)[0] or "application/octet-stream"
 
 class File(BaseModel):
     id: str
@@ -60,7 +54,7 @@ class File(BaseModel):
         return File(
             id=data.id,
             name=data.name,
-            mime=mime_of(data.name, data.id)
+            mime=mime_of(data.name)
         )
 
 class IncompletePost(BaseModel):
