@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from sqlalchemy import String, ForeignKey, Boolean, Column, DateTime, func, Enum
+from sqlalchemy import String, Integer, ForeignKey, Boolean, Column, DateTime, func, Enum
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 from sqlalchemy.orm.attributes import Mapped
 
@@ -45,7 +45,7 @@ class DatabaseVacancy(Base):
     department = Column(String(255))
     salary = Column(String(100))
     is_active = Column(Boolean())
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(Integer())
 
 
 class DatabaseSettings(Base):

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, HTTPException
@@ -37,7 +36,6 @@ async def add_vacancy(
 ) -> Vacancy:
     with Session.begin() as session:
         dump = vacancy.model_dump()
-        dump["created_at"] = datetime.fromtimestamp(dump["created_at"])
 
         db_vacancy = DatabaseVacancy(
             **dump
@@ -65,7 +63,6 @@ async def edit_vacancy(
         vacancy_id: int
 ) -> Vacancy:
     dump = vacancy.model_dump()
-    dump["created_at"] = datetime.fromtimestamp(dump["created_at"])
 
     with Session.begin() as session:
         if (
