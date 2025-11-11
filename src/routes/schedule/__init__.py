@@ -63,8 +63,9 @@ async def get_updates(platform: str):
 @schedule_router.get("/{platform:str}/download")
 async def download_update(platform: str):
     format = formats.get(platform)
+    print(platform, formats)
 
-    if format == None:
+    if format is None:
         return _not_found
         
     return FileResponse(
