@@ -1,7 +1,11 @@
-﻿sqlalchemy
+sqlalchemy
 fastapi
 fastapi[standard]
 argon2-cffi
 pillow
 websockets
 toml
+pdfplumber
+beautifulsoup4
+alive-progress
+requests
