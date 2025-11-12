@@ -24,7 +24,7 @@ def for_teacher(lesson: dict, teacher: str, group: str) -> dict | None:
     return None
 
 def teacher_overrides(teacher: str):
-    overrides_downloader.download("")
+    overrides_downloader.download_overrides("")
     output: List[dict] = []
     weeknum, weekday = 0, 0
 
