@@ -13,7 +13,7 @@ def for_teacher(lesson: dict, teacher: str, group: str) -> dict | None:
             )
     if lesson.get("subgroupedLesson"):
         for subgroup in lesson["subgroupedLesson"]["subgroups"]:
-            if subgroup.teacher == teacher:
+            if subgroup["teacher"] == teacher:
                 return dict(
                     commonLesson=dict(
                         name=lesson["subgroupedLesson"]["name"],
