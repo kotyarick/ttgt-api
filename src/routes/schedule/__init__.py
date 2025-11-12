@@ -7,6 +7,7 @@ from ...api_tags import SCHEDULE
 from fastapi import APIRouter, Response, status
 from .overrides_downloader import download_overrides
 from .schedule_parser import teachers, groups, cache
+from .teacher_overrides import teacher_overrides
 from fastapi.responses import FileResponse
 
 
@@ -53,7 +54,7 @@ async def get_schedule(item_name: str):
     name="Получить изменения"    
 )
 async def get_overrides(item_name: str):
-    return download_overrides(item_name)
+    return download_overrides(item_name) if '-' in item_name else teacher_overrides(item)
 
 
 @schedule_router.get("/{platform:str}/updates")
