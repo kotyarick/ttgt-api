@@ -31,7 +31,7 @@ with alive_progress.alive_bar(len(_namelist)) as bar:
 
         target = soup.find('font', {'face': 'Times New Roman', 'size': '6', 'color': '#ff00ff'}).children.__next__().text.strip()
 
-        if target == '.':
+        if target.lower() in [".", "вакансия"]:
             bar()
             continue
 
@@ -146,3 +146,6 @@ with alive_progress.alive_bar(len(_namelist)) as bar:
 
         cache[target] = schedule
         bar()
+
+teachers.sort()
+groups.sort()
