@@ -4,8 +4,9 @@ from . import overrides_downloader
 
 
 def for_teacher(lesson: dict, teacher: str, group: str) -> dict | None:
+    if lesson is None: return None
     if lesson.get("commonLesson"):
-        if lesson["commonLesson"].teacher == teacher:
+        if lesson["commonLesson"]["teacher"] == teacher:
             return dict(
                 commonLesson=lesson["commonLesson"],
                 group=group
