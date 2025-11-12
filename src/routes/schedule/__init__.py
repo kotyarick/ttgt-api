@@ -54,7 +54,7 @@ async def get_schedule(item_name: str):
     name="Получить изменения"    
 )
 async def get_overrides(item_name: str):
-    return download_overrides(item_name) if '-' in item_name else teacher_overrides(item)
+    return download_overrides(item_name) if '-' in item_name else teacher_overrides(item_name)
 
 
 @schedule_router.get("/{platform:str}/updates")
