@@ -48,6 +48,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.head("/")
+async def index_head(): return
 
 @app.get("/", name="Основная страница")
 async def index():
