@@ -3,7 +3,7 @@ from typing import List
 from . import overrides_downloader
 
 
-def for_teacher(lesson: dict, teacher: str, group: str) -> Lesson | None:
+def for_teacher(lesson: dict, teacher: str, group: str) -> dict | None:
     if lesson.get("commonLesson"):
         if lesson["commonLesson"].teacher == teacher:
             return dict(
