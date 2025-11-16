@@ -5,11 +5,11 @@ import json
 cache = {}
 items = {}
 
-if os.isfile("schedule.zip"):
+if os.path.isfile("schedule.zip"):
     parse_schedule()
 
-if os.isfile("schedule.json"):
+if os.path.isfile("schedule.json"):
     cache = json.load(open("schedule.json"))
 
-if os.isfile("items.json"):
+if os.path.isfile("items.json"):
     items = json.load(open("items.json"))
