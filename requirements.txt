@@ -7,3 +7,5 @@ websockets
 toml
 pdfplumber
 requests
+beautifulsoup4
+alive-progress

@@ -24,6 +24,14 @@ def for_teacher(lesson: dict, teacher: str, group: str) -> dict | None:
                 )
     return None
 
+def combine_overrides(first, second):
+    return dict(
+        shouldBe=first["shouldBe"] or second["shouldBe"],
+        willBe=first["willBe"] or second["willBe"],
+        index=first["index"]
+    )
+        
+
 def teacher_overrides(teacher: str):
     overrides_downloader.download_overrides("")
     output: List[dict] = []
@@ -52,6 +60,23 @@ def teacher_overrides(teacher: str):
                 )
             )
 
+    lesson_indexes = [over["index"] for over in output]
+    # Индекс пары(over.index): индекс замены(overrides[INDEX])
+    inde = {}
+    
+    for index, lesson in enumerate(lesson_indexes):
+        inde[lesson] = inde.get(lesson, [])
+        inde[lesson].append(index)
+
+    for i in inde:
+        if len(inde[i]) < 2: continue
+
+        res = combine_overrides(output[inde[i][0]], output[inde[i][1]])
+        output[inde[i][0]] = res
+
+    remove = [inde[i][1] for i in inde]
+    output = [out for index, out in enumerate(output) if index not in remove]
+    
     return dict(
         overrides=output,
         weekNum=weeknum,
