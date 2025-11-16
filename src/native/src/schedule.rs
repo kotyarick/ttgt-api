@@ -32,12 +32,14 @@ impl Subgroup {
 
 #[derive(Debug, Serialize)]
 pub enum Lesson {
+	#[serde(rename = "commonLesson")]
 	CommonLesson {
 		teacher: String,
 		group: String,
 		room: String,
 		name: String,
 	},
+	#[serde(rename = "subgroupedLesson")]
 	SubgroupedLesson {
 		name: String,
 		subgroups: Vec<Subgroup>,
