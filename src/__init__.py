@@ -2,7 +2,8 @@ from sys import argv
 
 if len(argv) >= 2:
     from . import manager
-    exit(0)
+    if manager.run():
+        exit(0)
 
 import os
 
