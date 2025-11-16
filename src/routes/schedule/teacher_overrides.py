@@ -74,7 +74,7 @@ def teacher_overrides(teacher: str):
         res = combine_overrides(output[inde[i][0]], output[inde[i][1]])
         output[inde[i][0]] = res
 
-    remove = [inde[i][1] for i in inde]
+    remove = [inde[i][1] for i in inde if len(inde[i]) >= 2]
     output = [out for index, out in enumerate(output) if index not in remove]
     
     return dict(
