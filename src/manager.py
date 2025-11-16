@@ -9,9 +9,6 @@ from .database import Session
 from .models.database import DatabaseTeacher, DatabaseAdmin
 from .utils import regenerate_secret
 
-if len(argv) < 2:
-    argv.append("")
-
 
 def non_empty(user_input: str) -> bool:
     """

@@ -1,3 +1,9 @@
+from sys import argv
+
+if len(argv) >= 2:
+    from . import manager
+    exit(0)
+
 import os
 
 os.makedirs("database/files", exist_ok=True)

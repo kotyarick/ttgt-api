@@ -74,5 +74,5 @@ async def download_update(platform: str):
     )
 
 @schedule_router.post("/crash")
-async def recieve_crash_log(request: Request):
-    print(await request.body())
+async def receive_crash_log(request: Request):
+    print((await request.body()).decode())
