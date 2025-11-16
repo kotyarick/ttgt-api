@@ -27,11 +27,15 @@ def for_teacher(lesson: dict, teacher: str, group: str) -> dict | None:
 def teacher_overrides(teacher: str):
     overrides_downloader.download_overrides("")
     output: List[dict] = []
-    weeknum, weekday = 0, 0
+    weeknum = weekday = day = month = year = 0
 
     for group, overrides in overrides_downloader.cache.items():
         weeknum = overrides["weekNum"]
         weekday = overrides["weekDay"]
+        
+        day = overrides["day"]
+        month = overrides["month"]
+        year = overrides["year"]
 
         for override in overrides["overrides"]:
             shouldBe = for_teacher(override["shouldBe"], teacher, group)
@@ -51,5 +55,8 @@ def teacher_overrides(teacher: str):
     return dict(
         overrides=output,
         weekNum=weeknum,
-        weekDay=weekday
+        weekDay=weekday,
+        day = day,
+        month = month,
+        year = year,
     )

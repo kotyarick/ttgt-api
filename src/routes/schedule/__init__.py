@@ -6,7 +6,7 @@ from ...api_tags import SCHEDULE
 
 from fastapi import APIRouter, Response, status
 from .overrides_downloader import download_overrides
-from .schedule_parser import teachers, groups, cache
+from .schedule_parser import items, cache
 from .teacher_overrides import teacher_overrides
 from fastapi.responses import FileResponse
 
@@ -35,10 +35,7 @@ schedule_router = APIRouter(
     name="Получить список групп и преподавателей"
 )
 async def get_items() -> Dict[str, List[str]]:
-    return {
-        "groups": groups,
-        "teachers": teachers
-    }
+    return items
 
 
 @schedule_router.get(

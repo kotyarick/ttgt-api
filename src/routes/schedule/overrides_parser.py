@@ -5,6 +5,30 @@ import pdfplumber
 
 from . import downloader, overrides_downloader
 
+weekdays = [
+    "понедельник",
+    "вторник",
+    "среда",
+    "четверг",
+    "пятница",
+    "суббота",
+    "воскресенье"
+]
+
+months = [
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "инюня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря"
+]
 
 #  Из строки таблицы получить эти данные:
 #  - Информация о подгруппах, если есть
@@ -65,7 +89,7 @@ def parse_lesson(
 
 def parse_overrides():
     current_group = None
-    out: Dict[str, Overrides] = {}
+    out: Dict[str, dict] = {}
 
 
     #  Парсим этот ужас
@@ -77,19 +101,15 @@ def parse_overrides():
         .extract_text()\
         .split("\n")[:2]
 
+        day, month, year = weekday.split(" ")[:3]
+        day = int(day)
+        month = months.index(month.lower())
+        year = int(year[:4])
+        
         #  Номер недели - это пятое слово первой строки
         weeknum = int(weeknum.split(" ")[4])-1
-        weekday = [
-            "понедельник",
-            "вторник",
-            "среда",
-            "четверг",
-            "пятница",
-            "суббота",
-            "воскресенье"
-            #  День недели - это четвёртое слово второй строки
-        ].index(weekday.split(" ")[3].lower().replace("_", ""))
-
+        #  День недели - это четвёртое слово второй строки
+        weekday = weekdays.index(weekday.split(" ")[3].lower().replace("_", ""))
 
         for page in pdf.pages:
             for table in page.extract_tables():
@@ -119,10 +139,14 @@ def parse_overrides():
                 if current_group not in out:
                     out[current_group] = dict(
                         overrides = [],
+                        
                         weekDay=weekday,
-                        weekNum=weeknum
+                        weekNum=weeknum,
+                        
+                        day=day,
+                        month=month,
+                        year=year
                     )
-
                 #  s - should - по расписанию
                 s = parse_lesson(row[2], row[4])
                 #  w - will - по замене
@@ -182,6 +206,7 @@ def parse_overrides():
                 shouldSubgroupedLessons = []
                 #  ...и пары, которые состоятся из-за изменений
                 willSubgroupedLessons = []
+        print(out[list(out.keys())[0]])
         return out
 
 
