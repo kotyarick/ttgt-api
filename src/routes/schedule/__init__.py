@@ -4,7 +4,7 @@ from typing import List, Dict
 
 from ...api_tags import SCHEDULE
 
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, Response, status, Request
 from .overrides_downloader import download_overrides
 from .schedule_parser import items, cache
 from .teacher_overrides import teacher_overrides
@@ -72,3 +72,7 @@ async def download_update(platform: str):
         media_type="application/octet-stream",
         content_disposition_type="attachment"
     )
+
+@schedule_router.post("/crash")
+async def recieve_crash_log(request: Request):
+    print(await request.body())
