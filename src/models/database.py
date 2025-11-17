@@ -88,3 +88,12 @@ class DatabaseFile(Base):
 
     id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str] = Column(String(), nullable=False)
+
+
+class DatabaseSettings(Base):
+    __tablename__ = "api_settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = Column(String(), nullable=False)
+    value: Mapped[str] = Column(String(), nullable=False)
+    enabled: Mapped[bool] = Column(Boolean(), nullable=False)

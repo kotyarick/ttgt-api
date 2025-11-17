@@ -6,6 +6,7 @@ from ...api_tags import ADMIN_ONLY
 from ...models.api import Admin
 from ...routes.auth import extract_jwt
 from .vacancies import vacancies_router
+from .settings import admin_settings_router
 
 
 def admin_login(
@@ -29,3 +30,4 @@ admin_router.include_router(posts_router)
 admin_router.include_router(teachers_router)
 admin_router.include_router(vacancies_router)
 admin_router.include_router(fixed_files_router)
+admin_router.include_router(admin_settings_router)

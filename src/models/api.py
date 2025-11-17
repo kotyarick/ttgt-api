@@ -1,3 +1,4 @@
+import json
 import mimetypes
 import os.path
 import re
@@ -10,7 +11,7 @@ from sqlalchemy import select
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from ..database import Session, FILES_PATH
-from ..models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy
+from ..models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy, DatabaseSettings
 from ..utils import crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompletePost')
@@ -355,3 +356,23 @@ class Feedback(BaseModel):
                 status_code=HTTP_400_BAD_REQUEST,
                 detail=error.args[0]
             )
+
+class Settings(BaseModel):
+    name: str
+    value: dict
+    enabled: bool
+
+    def privatize(self):
+        if self.enabled: return self
+
+        self.value = None
+
+        return self
+
+    @classmethod
+    def from_database(cls, data: DatabaseSettings):
+        return Settings(
+            name=data.name,
+            value=json.loads(data.value),
+            enabled=data.enabled
+        )

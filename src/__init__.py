@@ -31,6 +31,7 @@ from .routes.auth import auth_router
 from .routes.content import content_router
 from .routes.websocket import websocket_router
 from .routes.schedule import schedule_router
+from .routes.settings import public_settings_router
 
 app = FastAPI()
 
@@ -88,3 +89,4 @@ app.include_router(admin_router)
 app.include_router(files_router)
 app.include_router(feedback_router)
 app.include_router(schedule_router)
+app.include_router(public_settings_router)
