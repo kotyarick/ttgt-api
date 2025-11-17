@@ -9,7 +9,7 @@ from ...database import Session
 
 admin_settings_router = APIRouter(prefix="/settings", tags=[SETTINGS])
 
-@admin_settings_router.get("/")
+@admin_settings_router.get("/", name="Получить приватные настройки")
 async def get_settings(names: str):
     names = names.split(" ")
     
@@ -22,7 +22,7 @@ async def get_settings(names: str):
     
     return result
 
-@admin_settings_router.patch("/", status_code=204)
+@admin_settings_router.patch("/", status_code=204, name="Изменить настройки")
 async def edit_settings(settings: List[Settings]):
     for setting in settings:
         with Session.begin() as session:

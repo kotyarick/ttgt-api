@@ -9,7 +9,7 @@ public_settings_router = APIRouter(
     tags=[SETTINGS]
 )
 
-@public_settings_router.get("/")
+@public_settings_router.get("/", name="Получить публичные настройки")
 async def get_settings(names: str):
     names = names.split(" ")
     
