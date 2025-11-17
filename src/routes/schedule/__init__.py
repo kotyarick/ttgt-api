@@ -54,11 +54,11 @@ async def get_overrides(item_name: str):
     return download_overrides(item_name) if '-' in item_name else teacher_overrides(item_name)
 
 
-@schedule_router.get("/{platform:str}/updates")
+@schedule_router.get("/{platform:str}/updates", name="Получить информацию о последней версии приложения")
 async def get_updates(platform: str):
     return json.load(open("applications/updates.json")).get(platform, _not_found)
 
-@schedule_router.get("/{platform:str}/download")
+@schedule_router.get("/{platform:str}/download", name="Скачать обновление")
 async def download_update(platform: str):
     format = formats.get(platform)
     print(platform, formats)
@@ -73,6 +73,6 @@ async def download_update(platform: str):
         content_disposition_type="attachment"
     )
 
-@schedule_router.post("/crash")
+@schedule_router.post("/crash", name="Отпрвить отчёт об ошибке")
 async def receive_crash_log(request: Request):
     print((await request.body()).decode())

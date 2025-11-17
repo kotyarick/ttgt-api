@@ -17,7 +17,7 @@ fixed_files = {
     "zamena": "zamena.pdf"
 }
 
-@fixed_files_router.patch("/{fixed_file:str}", status_code=HTTP_204_NO_CONTENT)
+@fixed_files_router.patch("/{fixed_file:str}", status_code=HTTP_204_NO_CONTENT, name="Отправить фиксированный файл")
 async def update_file(
         fixed_file: str,
         request: Request

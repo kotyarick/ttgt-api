@@ -24,7 +24,8 @@ files_router = APIRouter(
 
 
 @files_router.get(
-    "/fixed/{fixed_file:str}"
+    "/fixed/{fixed_file:str}",
+    name="Скачать фиксированный файл"
 )
 async def get_fixed_file(fixed_file: str):
     if not fixed_file in fixed_files:

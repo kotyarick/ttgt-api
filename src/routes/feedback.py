@@ -14,7 +14,7 @@ feedback_router = APIRouter(
     tags=[]
 )
 
-@feedback_router.post("/", status_code=status.HTTP_204_NO_CONTENT)
+@feedback_router.post("/", status_code=status.HTTP_204_NO_CONTENT, name="Отправить обращение")
 async def create_feedback(
         feedback: Feedback
 ):
