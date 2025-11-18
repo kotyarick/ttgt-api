@@ -24,7 +24,7 @@ STUDENT = 1
 def get_html(target):
     if not target in filenames: return
 
-    return _archive.read(filenames[target]) #.decode() # .decode("windows-1251")
+    return _archive.read(filenames[target]).decode("windows-1251").replace("windows-1251", "utf-8")
 
 def process_file(file):
     if not file.endswith(".html"):
