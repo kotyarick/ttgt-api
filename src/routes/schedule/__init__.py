@@ -80,5 +80,4 @@ async def receive_crash_log(request: Request):
 
 @schedule_router.get("/{item_name:str}/schedule.html", name="Получить HTML расписания")
 async def get_html_(item_name):
-    print(get_html(item_name))
     return Response(get_html(item_name) or "")
