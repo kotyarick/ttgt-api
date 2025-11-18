@@ -18,6 +18,9 @@ items: Dict[str, List[str]] = {
     "teachers": []
 }
 
+if os.path.isfile("items.json"):
+    items = json.load(open("items.json"))
+
 TEACHER = 0
 STUDENT = 1
 
