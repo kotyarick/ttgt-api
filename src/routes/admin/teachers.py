@@ -4,12 +4,17 @@ from fastapi import APIRouter
 from fastapi import status
 from sqlalchemy import select
 
+from . import siteAdminDependency
 from ...api_tags import TEACHERS
 from ...database import Session
 from ...models.api import Teacher, CreateTeacher
 from ...models.database import DatabaseTeacher
 
-teachers_router = APIRouter(prefix="/teachers", tags=[TEACHERS])
+teachers_router = APIRouter(
+    prefix="/teachers",
+    tags=[TEACHERS],
+    dependencies=[siteAdminDependency]
+)
 
 
 @teachers_router.get("/", name="Получить список преподавателей")

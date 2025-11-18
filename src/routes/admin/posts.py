@@ -11,10 +11,14 @@ from ...api_tags import POSTS, ADMIN_ONLY
 from ...database import Session, FILES_PATH
 from ...models.api import PrivatePost, PostablePost, IncompletePost, Event
 from ...models.database import DatabasePost, PostStatus, DatabaseFile
-from ...routes.admin import AdminRequired
+from ...routes.admin import siteAdminDependency
 from ...routes.websocket import broadcast_event
 
-posts_router = APIRouter(prefix="/posts", tags=[POSTS, ADMIN_ONLY])
+posts_router = APIRouter(
+    prefix="/posts",
+    tags=[POSTS],
+    dependencies=[siteAdminDependency]
+)
 
 async def on_post_create_or_update(post: IncompletePost, is_public: bool):
     # asyncio.create_task(cleanup_files())
@@ -63,10 +67,7 @@ def cleanup_files():
 cleanup_files()
 
 @posts_router.post("/", name="Создать пост")
-async def create_post(
-        _admin: AdminRequired,
-        post: PostablePost
-) -> PrivatePost:
+async def create_post(post: PostablePost) -> PrivatePost:
     """ Создать пост
 
     Если статус поста Draft, то он не будет видна на главной странице

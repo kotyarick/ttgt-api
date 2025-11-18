@@ -48,15 +48,6 @@ class DatabaseVacancy(Base):
     created_at = Column(Integer())
 
 
-class DatabaseSettings(Base):
-    __tablename__ = "settings"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    key = String(100)
-    value = String()
-
-
 class DatabaseAdmin(Base):
     __tablename__ = "admins"
 
@@ -70,6 +61,8 @@ class DatabaseAdmin(Base):
 
     middle_name: Mapped[Optional[str]]
     """ Отчество """
+
+    type: Mapped[int]
 
     password_hash: Mapped[str]
 

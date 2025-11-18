@@ -11,7 +11,8 @@ from sqlalchemy import select
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from ..database import Session, FILES_PATH
-from ..models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy, DatabaseSettings
+from ..models.database import DatabasePost, DatabaseTeacher, PostStatus, DatabaseAdmin, DatabaseFile, DatabaseVacancy, \
+    DatabaseSettings
 from ..utils import crop_first_paragraph
 
 IN = TypeVar('IN', bound='IncompletePost')
@@ -19,8 +20,34 @@ PN = TypeVar('PN', bound='PublicPost')
 PR = TypeVar('PR', bound='PrivatePost')
 A = TypeVar('A', bound='Admin')
 
+
 def mime_of(name: str):
     return mimetypes.guess_type(name)[0] or "application/octet-stream"
+
+
+def validator(function):
+    """
+    Конвертирует функцию в валидатор
+    Ошибка [`AssertionError`] конвертируется в [`HTTPException`]
+    """
+
+    def inner(*args, **kwargs):
+        try:
+            function(*args, **kwargs)
+        except AssertionError as error:
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail=str(error)
+            )
+
+    return inner
+
+
+class AdminType:
+    Site = 0
+    Schedule = 1
+    Courses = 2
+
 
 class File(BaseModel):
     id: str
@@ -57,6 +84,7 @@ class File(BaseModel):
             name=data.name,
             mime=mime_of(data.name)
         )
+
 
 class IncompletePost(BaseModel):
     """
@@ -96,6 +124,7 @@ class IncompletePost(BaseModel):
             files=File.get_files(data.files.split("\n")),
             category=data.category
         )
+
 
 class PublicPost(BaseModel):
     """
@@ -151,23 +180,18 @@ class PostablePost(BaseModel):
     files: List[str]
     category: int
 
+    @validator
     def check(self):
         self.files = list(set(self.files))
 
-        try:
-            assert self.body != "", "Поле title обязательно"
-            assert self.author != "", "Поле body обязательно"
-            assert self.type >= 0, "Тип поста должен быть положительным"
-            assert self.category >= 0, "Категория поста должен быть положительным"
-            assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
+        assert self.body != "", "Поле title обязательно"
+        assert self.author != "", "Поле body обязательно"
+        assert self.type >= 0, "Тип поста должен быть положительным"
+        assert self.category >= 0, "Категория поста должен быть положительным"
+        assert 0 <= self.status.value <= 1, "Статус поста должен быть в диапазоне 0-1"
 
-            for file in self.files:
-                assert os.path.isfile(f"{FILES_PATH}/{file}"), f"Файла с ID {file} нет"
-        except AssertionError as error:
-            raise HTTPException(
-                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-                detail=str(error)
-            )
+        for file in self.files:
+            assert os.path.isfile(f"{FILES_PATH}/{file}"), f"Файла с ID {file} нет"
 
 
 class PrivatePost(BaseModel):
@@ -213,13 +237,16 @@ class Admin(BaseModel):
     middle_name: str = ""
     """ Отчество """
 
+    type: int
+
     @classmethod
     def from_database(cls: Type[A], data: DatabaseAdmin) -> A:
         return Admin(
             id=data.id,
             first_name=data.first_name,
             second_name=data.second_name,
-            middle_name=data.middle_name
+            middle_name=data.middle_name,
+            type=data.type
         )
 
 
@@ -284,8 +311,10 @@ class Vacancy(CreateVacancy):
             created_at=data.created_at
         )
 
+
 class Stats(BaseModel):
     online: int
+
 
 class Event(BaseModel):
     updateStats: Optional[Stats] = None
@@ -308,12 +337,11 @@ class Event(BaseModel):
         if self.updateFile:
             out["updateFile"] = self.updateFile
 
-
         return out
+
 
 class Feedback(BaseModel):
     """ Обращение граждан """
-
 
     first_name: str
     """ Имя """
@@ -324,13 +352,11 @@ class Feedback(BaseModel):
     middle_name: str
     """ Отчество """
 
-
     email: str
     """ Почта """
 
     phone: str
     """ Номер телефона """
-
 
     topic: str
     """ Тема сообщения """
@@ -338,28 +364,22 @@ class Feedback(BaseModel):
     content: str
     """ Сообщение """
 
-
+    @validator
     def check(self):
-        try:
-            assert 0 < len(self.first_name) < 15,  "Имя не правильной длины"
-            assert 0 < len(self.second_name) < 15, "Фамилия не правильной длины"
-            assert     len(self.middle_name) < 15, "Отчество не правильной длины"
+        assert 0 < len(self.first_name) < 15, "Имя не правильной длины"
+        assert 0 < len(self.second_name) < 15, "Фамилия не правильной длины"
+        assert len(self.middle_name) < 15, "Отчество не правильной длины"
 
-            assert re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', self.email) is not None, "Почта не валидна"
-            assert re.match(r"\+7[0-9]{10}", self.phone) is not None
+        assert re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', self.email) is not None, "Почта не валидна"
+        assert re.match(r"\+7[0-9]{10}", self.phone) is not None
 
-            assert     len(self.topic) < 100,    "Тема слишком длинная"
-            assert 0 < len(self.content) < 4096, "Сообщение слишком длинное"
+        assert len(self.topic) < 100, "Тема слишком длинная"
+        assert 0 < len(self.content) < 4096, "Сообщение слишком длинное"
 
-        except AssertionError as error:
-            raise HTTPException(
-                status_code=HTTP_400_BAD_REQUEST,
-                detail=error.args[0]
-            )
 
 class Settings(BaseModel):
     name: str
-    value: dict
+    value: Optional[dict]
     enabled: bool
 
     def privatize(self):

@@ -2,12 +2,17 @@ import json
 from fastapi import APIRouter
 from typing import List
 
+from . import SiteAdminRequired, siteAdminDependency
 from ...api_tags import SETTINGS
 from ...models.api import Settings
 from ...models.database import DatabaseSettings
 from ...database import Session
 
-admin_settings_router = APIRouter(prefix="/settings", tags=[SETTINGS])
+admin_settings_router = APIRouter(
+    prefix="/settings",
+    tags=[SETTINGS],
+    dependencies=[siteAdminDependency]
+)
 
 @admin_settings_router.get("/", name="Получить приватные настройки")
 async def get_settings(names: str):

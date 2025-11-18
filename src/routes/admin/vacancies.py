@@ -4,12 +4,17 @@ from fastapi import APIRouter, HTTPException
 from fastapi import status
 from sqlalchemy import select
 
+from . import SiteAdminRequired, siteAdminDependency
 from ...api_tags import VACANCIES
 from ...database import Session
 from ...models.api import Vacancy, CreateVacancy
 from ...models.database import DatabaseVacancy
 
-vacancies_router = APIRouter(prefix="/vacancies", tags=[VACANCIES])
+vacancies_router = APIRouter(
+    prefix="/vacancies",
+    tags=[VACANCIES],
+    dependencies=[siteAdminDependency]
+)
 
 
 @vacancies_router.get("/", name="Получить список вакансий")

@@ -29,7 +29,7 @@ TEACHER = 0
 STUDENT = 1
 
 def get_html(target):
-    if not target in filenames: return
+    if not target in filenames: return None
 
     return _archive.read(filenames[target]).decode("windows-1251").replace("windows-1251", "utf-8")
 
@@ -45,8 +45,6 @@ def process_file(file):
 
     if target.lower() in [".", "вакансия"]:
         return
-
-    target_type: int = -1
 
     print(target, "." in target, "-" in target)
 
@@ -92,7 +90,7 @@ def process_file(file):
                             case 2:
                                 group_and_name, room = text
 
-                                group = name = ""
+                                group = ""
                                 num = False
 
                                 for i in group_and_name:
@@ -177,8 +175,6 @@ def update(force: bool = False):
         with open("schedule.json", "w") as f: json.dump(cache, f)
         with open("items.json", "w") as f: json.dump(items, f)
     else:
-        print(items)
         items = json.load(open("items.json"))
         cache = json.load(open("schedule.json"))
         filenames = json.load(open("filenames.json"))
-        print(items)

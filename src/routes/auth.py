@@ -2,6 +2,7 @@ import json
 from base64 import b64encode, b64decode
 from datetime import datetime
 from hashlib import sha256
+from typing import Optional
 
 from argon2 import PasswordHasher
 from fastapi import APIRouter, HTTPException
@@ -21,11 +22,12 @@ hasher = PasswordHasher()
 
 def create_jwt(user: Admin) -> str:
     """ Создаёт JWT токен из данных админа """
+
     jwt = b64encode(
         #  Данные о токене
         json.dumps({
-            #  Истекает через месяц
-            "expires_at": datetime.now().timestamp() + 2592000
+            #  Истекает через полгода
+            "expires_at": datetime.now().timestamp() + 15552000
         }).encode()
         #  Данные о пользователе
     ).decode() + "." + b64encode(
@@ -38,7 +40,7 @@ def create_jwt(user: Admin) -> str:
     return jwt
 
 
-def extract_jwt(jwt: str) -> Admin:
+def extract_jwt(jwt: str,  expect_type: Optional[int] = None) -> Admin:
     """Получает данные из JWT токена
 
     В случае ошибки создаёт HTTPException
@@ -57,10 +59,14 @@ def extract_jwt(jwt: str) -> Admin:
         #  2. Достаём данные
         metadata, admin_data = (json.loads(b64decode(metadata).decode()),
                                 json.loads(b64decode(admin_data).decode()))
-        #  3. Проверяем протух ли токен
+
+        #  3. Проверяем тип админа, если указан
+        assert expect_type is None or admin_data.get("type") == expect_type, "Не верный тип админа"
+
+        #  4. Проверяем протух ли токен
         assert metadata["expires_at"] > datetime.now().timestamp(), "Токен истёк"
 
-        #  4. Даём данные из токена
+        #  5. Даём данные из токена
         return Admin(**admin_data)
     except Exception as exception:
         print("Не удалось достать JWT:", exception)

@@ -1,5 +1,7 @@
 from sys import argv
 
+from .routes.courses import courses_router
+
 if len(argv) >= 2:
     from . import manager
     if manager.run():
@@ -81,12 +83,12 @@ async def exception_handler(
         }
     )
 
-
-app.include_router(websocket_router)
-app.include_router(content_router)
-app.include_router(auth_router)
 app.include_router(admin_router)
-app.include_router(files_router)
+app.include_router(auth_router)
+app.include_router(content_router)
+app.include_router(courses_router)
 app.include_router(feedback_router)
-app.include_router(schedule_router)
+app.include_router(files_router)
 app.include_router(public_settings_router)
+app.include_router(schedule_router)
+app.include_router(websocket_router)

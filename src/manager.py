@@ -39,6 +39,12 @@ def run():
             second_name = checked_input("Фамилия: ", non_empty)
             middle_name = input("Отчество (можно оставить пустым): ")
             password = input("Пароль (если оставить пустым, то будет сгенерирован и написан случайный пароль): ")
+            type = checked_input("""0 - Администратор сайта
+1 - Заведующий расписанием
+2 - Ответственный за курсы
+
+Тип аккаунта:""", lambda x: x.is_digit() and int(x) in range(3))
+
             if not password:
                 for _ in range(15):
                     password += random.choice(string.ascii_letters + string.digits)
@@ -53,7 +59,8 @@ def run():
                         first_name=first_name,
                         second_name=second_name,
                         middle_name=middle_name,
-                        password_hash=password_hash
+                        password_hash=password_hash,
+                        type=type
                     )
                 )
             print("Аккаунт админа добавлен.")

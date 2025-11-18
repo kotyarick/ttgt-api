@@ -13,3 +13,5 @@ FILES = "Файлы"
 SCHEDULE = "Расписание"
 
 SETTINGS = "Настройки"
+
+COURSES = "Курсы"
