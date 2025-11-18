@@ -41,6 +41,8 @@ def process_file(file):
 
     target_type: int = -1
 
+    print(target, "." in target, "-" in target)
+
     if "." in target:
         if target in items["teachers"]:
             return
