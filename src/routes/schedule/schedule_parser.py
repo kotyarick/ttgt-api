@@ -21,6 +21,10 @@ items: Dict[str, List[str]] = {
 if os.path.isfile("items.json"):
     items = json.load(open("items.json"))
 
+if os.path.isfile("schedule.json"):
+    cache = json.load(open("schedule.json"))
+
+
 TEACHER = 0
 STUDENT = 1
 
