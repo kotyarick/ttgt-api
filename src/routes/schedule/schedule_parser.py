@@ -1,4 +1,5 @@
 import os
+import json
 import zipfile
 from typing import Dict, List
 
@@ -6,11 +7,12 @@ import alive_progress
 from bs4 import BeautifulSoup
 import concurrent.futures
 
-_archive = zipfile.ZipFile('schedule.zip', 'r')
+_archive = zipfile.ZipFile('database/fixed_files/schedule.zip', 'r')
 _namelist = _archive.namelist()
 
 
 cache: Dict[str, dict] = {}
+filenames: Dict[str, str] = {}
 items: Dict[str, List[str]] = {
     "groups": [],
     "teachers": []
@@ -18,6 +20,11 @@ items: Dict[str, List[str]] = {
 
 TEACHER = 0
 STUDENT = 1
+
+def get_html(target):
+    if not target in filenames: return
+
+    return _archive.read(filenames[target]) #.decode() # .decode("windows-1251")
 
 def process_file(file):
     if not file.endswith(".html"):
@@ -34,14 +41,14 @@ def process_file(file):
 
     target_type: int = -1
 
-    if file.startswith("teacher/"):
+    if "." in target:
         if target in items["teachers"]:
             return
 
         items["teachers"].append(target)
         target_type = TEACHER
 
-    elif file.startswith("student/"):
+    elif "-" in target:
         if target in items["groups"]:
             return
 
@@ -49,6 +56,8 @@ def process_file(file):
         target_type = STUDENT
     else:
         return
+
+    filenames[target] = file
 
     for table in soup.find_all("table"):
         week = dict(days=[])
@@ -141,12 +150,24 @@ def process_file(file):
     cache[target] = schedule
 
 
+def update(force: bool = False):
+    global items, cache, filenames
+    
+    if force or not all([os.path.exists(file) for file in ("items.json", "schedule.json", "filenames.json")]):
+        with alive_progress.alive_bar(len(_namelist)) as bar:
+            for file in _namelist:
+                process_file(file)
+                bar()
 
-with alive_progress.alive_bar(len(_namelist)) as bar:
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {executor.submit(process_file, file): file for file in _namelist}
-        for future in concurrent.futures.as_completed(futures):
-            bar()
 
-items["teachers"].sort()
-items["groups"].sort()
+        items["teachers"].sort()
+        items["groups"].sort()
+
+
+        with open("filenames.json", "w") as f: json.dump(filenames, f)
+        with open("schedule.json", "w") as f: json.dump(cache, f)
+        with open("items.json", "w") as f: json.dump(items, f)
+    else:
+        items = json.load(open("items.json"))
+        cache = json.load(open("schedule.json"))
+        filenames = json.load(open("filenames.json"))

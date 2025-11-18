@@ -6,7 +6,8 @@ from ...api_tags import SCHEDULE
 
 from fastapi import APIRouter, Response, status, Request
 from .overrides_downloader import download_overrides
-from .schedule_parser import items, cache
+from .schedule_parser import items, cache, update, get_html
+update()
 from .teacher_overrides import teacher_overrides
 from fastapi.responses import FileResponse
 
@@ -76,3 +77,8 @@ async def download_update(platform: str):
 @schedule_router.post("/crash", name="Отпрвить отчёт об ошибке")
 async def receive_crash_log(request: Request):
     print((await request.body()).decode())
+
+@schedule_router.get("/{item_name:str}/schedule.html", name="Получить HTML расписания")
+async def get_html_(item_name):
+    print(get_html(item_name))
+    return Response(get_html(item_name) or "")

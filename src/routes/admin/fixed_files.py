@@ -6,6 +6,7 @@ from src.api_tags import ADMIN_ONLY, FILES
 from src.models.api import Event
 from src.routes.admin import admin_login
 from src.routes.websocket import broadcast_event
+from src.routes.schedule.schedule_parser import update
 
 fixed_files_router = APIRouter(
     prefix="/fixedfiles",
@@ -14,7 +15,8 @@ fixed_files_router = APIRouter(
 )
 
 fixed_files = {
-    "zamena": "zamena.pdf"
+    "zamena": "zamena.pdf",
+    "schedule": "schedule.zip"
 }
 
 @fixed_files_router.patch("/{fixed_file:str}", status_code=HTTP_204_NO_CONTENT, name="Отправить фиксированный файл")
@@ -30,7 +32,10 @@ async def update_file(
     with open(f"database/fixed_files/{file_name}", "wb") as f:
         f.write(await request.body())
 
+    match fixed_file:
+        case "schedule":
+            update(True)
+    
     await broadcast_event(Event(
         updateFile=fixed_file
     ))
-
