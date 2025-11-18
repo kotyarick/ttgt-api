@@ -170,6 +170,8 @@ def update(force: bool = False):
         with open("schedule.json", "w") as f: json.dump(cache, f)
         with open("items.json", "w") as f: json.dump(items, f)
     else:
+        print(items)
         items = json.load(open("items.json"))
         cache = json.load(open("schedule.json"))
         filenames = json.load(open("filenames.json"))
+        print(items)
