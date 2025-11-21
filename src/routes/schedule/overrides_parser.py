@@ -1,214 +1,176 @@
+import re
 import traceback
 from typing import Dict
-
 import pdfplumber
-
 from . import downloader, overrides_downloader
 
 weekdays = [
-    "понедельник",
-    "вторник",
-    "среда",
-    "четверг",
-    "пятница",
-    "суббота",
-    "воскресенье"
+    "понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"
 ]
 
 months = [
-    "января",
-    "февраля",
-    "марта",
-    "апреля",
-    "мая",
-    "инюня",
-    "июля",
-    "августа",
-    "сентября",
-    "октября",
-    "ноября",
-    "декабря"
+    "января", "февраля", "марта", "апреля", "мая", "инюня",
+    "июля", "августа", "сентября", "октября", "ноября", "декабря"
 ]
 
-#  Из строки таблицы получить эти данные:
-#  - Информация о подгруппах, если есть
-#  - Инициалы преподавателя
-#  - Номер кабинета
-#  - Индекс пары
-#  - Название пары
-def parse_lesson(
-    row: str, 
-    room: str
-):
-    if row is None: return None
-    #  Убираем переход на другую строку
-    row = row.replace("\n", " ")
+TEACHER_PATTERN = re.compile(r'(?P<teacher>[А-ЯЁ][а-яё-]+(?:\-[А-ЯЁ][а-яё-]+)?\s+[А-ЯЁ]\.?\s*[А-ЯЁ]?\.?)')
 
-    #  Снятие пары - это замены на ничего
-    if row.lower() in ['', 'снят']:
-        return None
+def parse_cell_content(cell_text: str, room_str: str):
+    if not cell_text or cell_text.lower() in ['', 'снят', 'нет']:
+        return []
 
-    #  Разделяем по пробелам
-    split = row.split(" ")
+    raw_lines = cell_text.split('\n')
+    lessons = []
+    current_name_parts = []
     
-    if "п/г" not in row:
-        #  Если подгруппы нет, то тут всё просто
+    rooms = room_str.split('\n') if room_str else []
+    rooms = [r.strip() for r in rooms if r.strip()]
+
+    for line in raw_lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        match = TEACHER_PATTERN.search(line)
         
-        return dict(
-            #  Последние два элемента - это инициалы препода
+        if match:
+            teacher = match.group('teacher')
+            name_part = line[:match.start()].strip()
+            current_name_parts.append(name_part)
+            
+            full_name = " ".join(current_name_parts).strip()
+            
+            subgroup_index = None
+            if "п/г" in full_name:
+                sg_match = re.search(r'(\d)\s*п/г', full_name)
+                if sg_match:
+                    subgroup_index = int(sg_match.group(1))
+                full_name = re.sub(r'\d?\s*п/г[р]?', '', full_name).strip()
 
-            #  Убираем инициалы и получаем только название
-            name=" ".join(split[:-2]),
+            lessons.append({
+                "name": full_name,
+                "teacher": teacher,
+                "room": room_str,
+                "subgroup_index": subgroup_index
+            })
+            current_name_parts = []
+        else:
+            current_name_parts.append(line)
 
-            #  Убираем всё кроме инициалов
-            teacher=" ".join(split[-2:]),
+    if current_name_parts:
+        full_name = " ".join(current_name_parts).strip()
+        lessons.append({
+            "name": full_name,
+            "teacher": None,
+            "room": room_str,
+            "subgroup_index": None
+        })
 
-            room=room
-        )
+    has_teachers = any(l['teacher'] is not None for l in lessons)
+    
+    if not has_teachers and len(lessons) == 1:
+        merged_text = cell_text.replace("\n", " ").strip()
+        split = merged_text.split(" ")
+        
+        if len(split) > 2:
+             return [{
+                "name": " ".join(split[:-2]),
+                "teacher": " ".join(split[-2:]),
+                "room": room_str,
+                "subgroup_index": None
+             }]
 
-    #  А если подгруппа есть, то капец блин
-    #  Каждый раз могут по-разному написать это
-    #  хоть п/гр, хоть п/г
-    #  могут вообще просто на разных строках подгруппы пихнуть,
-    #  без явного обозначения
-    name, etc = row.split("п/г")
-    name = name.strip()
+    if len(lessons) > 1 and len(rooms) == len(lessons):
+        for i, lesson in enumerate(lessons):
+            lesson['room'] = rooms[i]
+    elif len(lessons) > 0 and len(rooms) == 1:
+         for lesson in lessons:
+            lesson['room'] = rooms[0]
 
-    return (
-        #  Мы разделили строку по "п/г"
-        #  Получили что-то вроде ["Призыв демона через мнимые числа 1 ", (тут п/г типа) " Моисеева"]
-        #  В первом элементе будет номер подгруппы, его надо убрать
-        " ".join(name.split(" ")[:-1]),
-        dict(
-            #  Если используется п/гр, то надо убрать р
-            teacher=etc[1:].strip() if etc.startswith("р") else etc,
-            room=room,
-            subgroup_index=int(name.split(" ")[-1][-1])
-        )
-    )
+    if len(lessons) > 1:
+        for i, lesson in enumerate(lessons):
+            if lesson['subgroup_index'] is None:
+                lesson['subgroup_index'] = i + 1
+
+    return lessons
 
 def parse_overrides():
     current_group = None
     out: Dict[str, dict] = {}
 
-
-    #  Парсим этот ужас
     with pdfplumber.open(f"{downloader.dir}zamena.pdf") as pdf:
         rows = []
-        #  первые две строки первой страницы
-        weeknum, weekday = pdf\
-        .pages[0]\
-        .extract_text()\
-        .split("\n")[:2]
+        weeknum_line, weekday_line = pdf.pages[0].extract_text().split("\n")[:2]
 
-        day, month, year = weekday.split(" ")[:3]
+        day, month_str, year_str = weekday_line.split(" ")[:3]
         day = int(day)
-        month = months.index(month.lower())
-        year = int(year[:4])
+        month = months.index(month_str.lower())
+        year = int(year_str[:4])
         
-        #  Номер недели - это пятое слово первой строки
-        weeknum = int(weeknum.split(" ")[4])-1
-        #  День недели - это четвёртое слово второй строки
-        weekday = weekdays.index(weekday.split(" ")[3].lower().replace("_", ""))
+        weeknum = int(weeknum_line.split(" ")[4]) - 1
+        weekday = weekdays.index(weekday_line.split(" ")[3].lower().replace("_", ""))
 
         for page in pdf.pages:
             for table in page.extract_tables():
                 for row in table:
-
-                    #  rows имеют все строки со всех таблиц со всех страниц
                     rows.append(row)
 
         i = None
 
-        #  Пары с подгруппой, которые должны быть по рассписанию...
-        shouldSubgroupedLessons = []
-        #  ...и пары, которые состоятся из-за изменений
-        willSubgroupedLessons = []
-
-        #  Первая строка не нужна, там только обозначения столбцов
         for row in rows[1:]:
             try:
-                #  Если группа указана, сохраняем её
                 if row[0] and current_group != row[0]: 
                     current_group = row[0]
-                    shouldSubgroupedLessons = []
-                    willSubgroupedLessons = []
 
-
-                #  Если изменения для группы не сохранены, то добавляем их
                 if current_group not in out:
                     out[current_group] = dict(
-                        overrides = [],
-                        
+                        overrides=[],
                         weekDay=weekday,
                         weekNum=weeknum,
-                        
                         day=day,
                         month=month,
                         year=year
                     )
-                #  s - should - по расписанию
-                s = parse_lesson(row[2], row[4])
-                #  w - will - по замене
-                w = parse_lesson(row[3], row[4])
 
-                if type(s) == dict and s.get("subgroups"):
-                    shouldSubgroupedLessons.append(s)
-                if type(w) == dict and w.get("subgroups"):
-                    willSubgroupedLessons.append(w)
+                s_list = parse_cell_content(row[2], row[4])
+                w_list = parse_cell_content(row[3], row[4])
 
-                if len(willSubgroupedLessons) > 0:
-                    w = dict(
-                        name=willSubgroupedLessons[0][0],
-                        subgroups=[x[1] for x in willSubgroupedLessons]
-                    )
+                should_entry = None
+                if s_list:
+                    if len(s_list) == 1:
+                         should_entry = { "commonLesson": s_list[0] }
+                    else:
+                        should_entry = { 
+                            "subgroupedLesson": {
+                                "name": s_list[0]["name"],
+                                "subgroups": s_list 
+                            }
+                        }
 
-                if len(shouldSubgroupedLessons) > 0:
-                    s = dict(
-                        name=shouldSubgroupedLessons[0][0],
-                        subgroups=[x[1] for x in shouldSubgroupedLessons]
-                    )
+                will_entry = None
+                if w_list:
+                    if len(w_list) == 1:
+                         will_entry = { "commonLesson": w_list[0] }
+                    else:
+                        will_entry = { 
+                            "subgroupedLesson": {
+                                "name": w_list[0]["name"],
+                                "subgroups": w_list 
+                            }
+                        }
 
                 i = row[1] or i
                 
-                if type(s) == tuple:
-                    s = dict(
-                        name=s[0],
-                        subgroups=[s[1]]
-                    )
-
-                if type(w) == tuple:
-                    w = dict(
-                        name=w[0],
-                        subgroups=[w[1]]
-                    )
-                
                 out[current_group]["overrides"].append(dict(
-                    shouldBe=(
-                        None
-                        if s is None else
-                        { "commonLesson" if type(s) == dict and not s.get("subgroups") else "subgroupedLesson": s }
-                    ),
-
-                    willBe=(
-                        None
-                        if w is None else
-                        { "commonLesson" if type(w) == dict and not w.get("subgroups") else "subgroupedLesson": w }
-                    ),
-
-                    index=int(i)-1
+                    shouldBe=should_entry,
+                    willBe=will_entry,
+                    index=int(i)-1 if i else 0
                 ))
-            except Exception as error:
+            except Exception:
                 print(traceback.format_exc())
-                i = None
 
-                #  Пары с подгруппой, которые должны быть по рассписанию...
-                shouldSubgroupedLessons = []
-                #  ...и пары, которые состоятся из-за изменений
-                willSubgroupedLessons = []
         print(out[list(out.keys())[0]])
         return out
-
 
 if __name__ == "__main__":
     overrides_downloader.download("Д-1-1")
