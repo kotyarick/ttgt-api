@@ -13,12 +13,14 @@ months = [
     "июля", "августа", "сентября", "октября", "ноября", "декабря"
 ]
 
-TEACHER_PATTERN = re.compile(r'(?P<teacher>[А-ЯЁ][а-яё-]+(?:\-[А-ЯЁ][а-яё-]+)?\s+[А-ЯЁ]\.?\s*[А-ЯЁ]?\.?)')
+TEACHER_PATTERN = re.compile(r'(?P<teacher>[А-ЯЁ][а-яё-]+(?:\-[А-ЯЁ][а-яё-]+)?\s+[А-ЯЁ]\.\s*[А-ЯЁ]?\.?)')
 
 def parse_cell_content(cell_text: str, room_str: str):
     if not cell_text or cell_text.lower() in ['', 'снят', 'нет']:
         return []
 
+    cell_text = cell_text.replace('\xa0', ' ')
+    
     raw_lines = cell_text.split('\n')
     lessons = []
     current_name_parts = []
@@ -50,7 +52,7 @@ def parse_cell_content(cell_text: str, room_str: str):
             lessons.append({
                 "name": full_name,
                 "teacher": teacher,
-                "room": room_str,
+                "room": room_str, 
                 "subgroup_index": subgroup_index
             })
             current_name_parts = []
@@ -70,15 +72,26 @@ def parse_cell_content(cell_text: str, room_str: str):
     
     if not has_teachers and len(lessons) == 1:
         merged_text = cell_text.replace("\n", " ").strip()
+        while "  " in merged_text:
+            merged_text = merged_text.replace("  ", " ")
+            
         split = merged_text.split(" ")
         
-        if len(split) > 2:
-             return [{
-                "name": " ".join(split[:-2]),
-                "teacher": " ".join(split[-2:]),
-                "room": room_str,
-                "subgroup_index": None
-             }]
+        if len(split) >= 2:
+            if len(split) == 2:
+                return [{
+                    "name": split[0],
+                    "teacher": split[1],
+                    "room": room_str,
+                    "subgroup_index": None
+                }]
+            else:
+                return [{
+                    "name": " ".join(split[:-2]),
+                    "teacher": " ".join(split[-2:]),
+                    "room": room_str,
+                    "subgroup_index": None
+                }]
 
     if len(lessons) > 1 and len(rooms) == len(lessons):
         for i, lesson in enumerate(lessons):
@@ -100,15 +113,20 @@ def parse_overrides():
 
     with pdfplumber.open(f"{downloader.dir}zamena.pdf") as pdf:
         rows = []
-        weeknum_line, weekday_line = pdf.pages[0].extract_text().split("\n")[:2]
+        try:
+            text = pdf.pages[0].extract_text()
+            if not text: return {}
+            weeknum_line, weekday_line = text.split("\n")[:2]
 
-        day, month_str, year_str = weekday_line.split(" ")[:3]
-        day = int(day)
-        month = months.index(month_str.lower())
-        year = int(year_str[:4])
-        
-        weeknum = int(weeknum_line.split(" ")[4]) - 1
-        weekday = weekdays.index(weekday_line.split(" ")[3].lower().replace("_", ""))
+            day, month_str, year_str = weekday_line.split(" ")[:3]
+            day = int(day)
+            month = months.index(month_str.lower())
+            year = int(year_str[:4])
+            
+            weeknum = int(weeknum_line.split(" ")[4]) - 1
+            weekday = weekdays.index(weekday_line.split(" ")[3].lower().replace("_", ""))
+        except Exception:
+            return {}
 
         for page in pdf.pages:
             for table in page.extract_tables():
@@ -119,6 +137,8 @@ def parse_overrides():
 
         for row in rows[1:]:
             try:
+                if not row or len(row) < 5: continue
+                
                 if row[0] and current_group != row[0]: 
                     current_group = row[0]
 
@@ -169,7 +189,8 @@ def parse_overrides():
             except Exception:
                 print(traceback.format_exc())
 
-        print(out[list(out.keys())[0]])
+        if out:
+            print(out[list(out.keys())[0]])
         return out
 
 if __name__ == "__main__":
