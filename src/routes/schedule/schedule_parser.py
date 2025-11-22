@@ -13,7 +13,7 @@ months = [
     "июля", "августа", "сентября", "октября", "ноября", "декабря"
 ]
 
-TEACHER_PATTERN = re.compile(r'(?P<teacher>[А-ЯЁ][а-яё-]+(?:\-[А-ЯЁ][а-яё-]+)?\s+[А-ЯЁ]\.?\s*[А-ЯЁ]?\.?)')
+TEACHER_PATTERN = re.compile(r'(?P<teacher>[А-ЯЁ][а-яё-]+(?:\-[А-ЯЁ][а-яё-]+)?\s+[А-ЯЁ]\.\s*[А-ЯЁ]?\.?)')
 
 def parse_cell_content(cell_text: str, room_str: str):
     if not cell_text or cell_text.lower() in ['', 'снят', 'нет']:
@@ -113,15 +113,20 @@ def parse_overrides():
 
     with pdfplumber.open(f"{downloader.dir}zamena.pdf") as pdf:
         rows = []
-        weeknum_line, weekday_line = pdf.pages[0].extract_text().split("\n")[:2]
+        try:
+            text = pdf.pages[0].extract_text()
+            if not text: return {}
+            weeknum_line, weekday_line = text.split("\n")[:2]
 
-        day, month_str, year_str = weekday_line.split(" ")[:3]
-        day = int(day)
-        month = months.index(month_str.lower())
-        year = int(year_str[:4])
-        
-        weeknum = int(weeknum_line.split(" ")[4]) - 1
-        weekday = weekdays.index(weekday_line.split(" ")[3].lower().replace("_", ""))
+            day, month_str, year_str = weekday_line.split(" ")[:3]
+            day = int(day)
+            month = months.index(month_str.lower())
+            year = int(year_str[:4])
+            
+            weeknum = int(weeknum_line.split(" ")[4]) - 1
+            weekday = weekdays.index(weekday_line.split(" ")[3].lower().replace("_", ""))
+        except Exception:
+            return {}
 
         for page in pdf.pages:
             for table in page.extract_tables():
@@ -132,6 +137,8 @@ def parse_overrides():
 
         for row in rows[1:]:
             try:
+                if not row or len(row) < 5: continue
+                
                 if row[0] and current_group != row[0]: 
                     current_group = row[0]
 
@@ -182,7 +189,8 @@ def parse_overrides():
             except Exception:
                 print(traceback.format_exc())
 
-        print(out[list(out.keys())[0]])
+        if out:
+            print(out[list(out.keys())[0]])
         return out
 
 if __name__ == "__main__":
